@@ -1,0 +1,33 @@
+{
+  "name": "nocolorcsv",
+  "displayName": "NoColorCSV",
+  "description": "Read CSV columns without relying on color.",
+  "version": "0.0.1",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:nocolorcsv.showCurrentColumn"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "nocolorcsv.showCurrentColumn",
+        "title": "NoColorCSV: Show Current Column"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "test": "npm run compile && node --test out/test/column.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "@types/vscode": "1.85.0",
+    "typescript": "^5.9.3"
+  }
+}
