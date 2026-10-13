@@ -6,15 +6,15 @@ NoColorCSV is a VS Code extension for people with color vision differences and a
 
 ## See it in VS Code
 
-These screenshots show NoColorCSV running with [the included sample file](examples/sample.csv). The interface is shown in English; the extension also provides localized interface text.
+These screenshots show NoColorCSV running with [the included sample file](examples/sample.csv).
 
 **Current column:** With the cursor in `hello, world`, the status bar identifies column 3 and its `note` header.
 
-![VS Code showing a CSV file with the cursor in the third column and NoColorCSV identifying column 3 and the note header in the status bar](docs/images/column-status.png)
+![VS Code with the cursor in column 3; a magnified inset shows the status bar text CSV: column 3 of 3 · note](docs/images/column-status.png)
 
 **Cell details:** Selecting the status bar item while the cursor is in `London, UK` shows the row, column, header, and cell value as text. The comma inside the quoted field does not start a new column.
 
-![VS Code showing NoColorCSV cell details for the quoted value London, UK in column 2 under the city header](docs/images/cell-details.png)
+![VS Code showing details for London, UK in column 2; a magnified inset shows the status bar text CSV: column 2 of 3 · city](docs/images/cell-details.png)
 
 ## How it differs from Rainbow CSV
 
@@ -69,3 +69,7 @@ npm run package
 ```
 
 See [AGENTS.md](AGENTS.md) for development conventions and [LICENSE](LICENSE) for licensing terms.
+
+## AI-Assisted Development
+
+NoColorCSV is developed and maintained by EETKILLER with coding assistance from OpenAI Codex.

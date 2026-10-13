@@ -6,15 +6,15 @@ NoColorCSV 是面向色觉障碍人士及其他不便依赖颜色区分列的用
 
 ## VS Code 实机展示
 
-以下截图使用仓库中的[示例文件](examples/sample.csv)在 VS Code 中实际运行扩展拍摄。截图界面为英文；扩展也提供本地化界面文字。
+以下截图使用仓库中的[示例文件](examples/sample.csv)在 VS Code 中实际运行扩展拍摄。
 
 **当前列：**光标位于 `hello, world` 时，状态栏显示第 3 列及表头 `note`。
 
-![VS Code 中打开 CSV，光标位于第三列，NoColorCSV 状态栏显示第 3 列和 note 表头](docs/images/column-status.png)
+![VS Code 中光标位于第三列；放大框显示状态栏文字 CSV: column 3 of 3 · note](docs/images/column-status.png)
 
 **单元格详情：**光标位于 `London, UK` 时，点击状态栏可用文字查看行号、列号、表头和单元格内容。引号内的逗号不会被当作分隔符。
 
-![VS Code 中 NoColorCSV 显示 city 表头下第 2 列的 London, UK 单元格详情](docs/images/cell-details.png)
+![VS Code 中显示第 2 列 London, UK 的详情；放大框显示状态栏文字 CSV: column 2 of 3 · city](docs/images/cell-details.png)
 
 ## 与 Rainbow CSV 的区别
 
@@ -69,3 +69,7 @@ npm run package
 ```
 
 项目约定见 [AGENTS.md](AGENTS.md)，许可证见 [LICENSE](LICENSE)。
+
+## AI 辅助开发
+
+NoColorCSV 由 EETKILLER 开发和维护，OpenAI Codex 提供代码编写辅助。

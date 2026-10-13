@@ -6,15 +6,15 @@ NoColorCSV는 색각 장애가 있거나 색상만으로 열을 구분하기 어
 
 ## VS Code 실행 화면
 
-다음 화면은 포함된 [예제 파일](examples/sample.csv)을 VS Code에서 열고 확장을 실제로 실행해 촬영했습니다. 화면은 영어로 표시되지만 확장 인터페이스에는 현지화된 문구도 제공됩니다.
+다음 화면은 포함된 [예제 파일](examples/sample.csv)을 VS Code에서 열고 확장을 실제로 실행해 촬영했습니다.
 
 **현재 열:** 커서가 `hello, world`에 있으면 상태 표시줄에 3열과 `note` 헤더가 표시됩니다.
 
-![VS Code에서 CSV의 3열에 커서가 있고 NoColorCSV 상태 표시줄에 열 번호와 note 헤더가 표시된 화면](docs/images/column-status.png)
+![VS Code에서 커서가 3열에 있고 확대 상자에 상태 표시줄의 CSV: column 3 of 3 · note가 표시된 화면](docs/images/column-status.png)
 
 **셀 상세 정보:** 커서가 `London, UK`에 있을 때 상태 표시줄 항목을 선택하면 행 번호, 열 번호, 헤더, 셀 값이 텍스트로 표시됩니다. 따옴표 안의 쉼표는 구분자로 처리되지 않습니다.
 
-![VS Code에서 city 헤더 아래 2열의 London, UK 셀 상세 정보를 표시한 화면](docs/images/cell-details.png)
+![VS Code에서 2열의 London, UK 셀 상세 정보를 표시하고 확대 상자에 상태 표시줄의 CSV: column 2 of 3 · city가 표시된 화면](docs/images/cell-details.png)
 
 ## Rainbow CSV와의 차이
 
@@ -69,3 +69,7 @@ npm run package
 ```
 
 개발 규칙은 [AGENTS.md](AGENTS.md), 라이선스는 [LICENSE](LICENSE)를 참고하세요.
+
+## AI 지원 개발
+
+NoColorCSV는 EETKILLER가 개발하고 유지 관리하며, OpenAI Codex가 코딩을 지원합니다.

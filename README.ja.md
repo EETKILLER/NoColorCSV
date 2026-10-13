@@ -6,15 +6,15 @@ NoColorCSV は、色覚障害・色覚特性のある方や、色だけで列を
 
 ## VS Code での動作画面
 
-以下は、付属の[サンプルファイル](examples/sample.csv)を VS Code で開き、拡張機能を実際に動かして撮影した画面です。画面は英語表示ですが、拡張機能の表示文言は各言語に対応しています。
+以下は、付属の[サンプルファイル](examples/sample.csv)を VS Code で開き、拡張機能を実際に動かして撮影した画面です。
 
 **現在の列：**カーソルが `hello, world` にあるとき、ステータスバーに 3 列目と見出し `note` が表示されます。
 
-![VS Code で CSV の 3 列目を示し、ステータスバーに列番号と note 見出しを表示した画面](docs/images/column-status.png)
+![VS Code でカーソルが 3 列目にあり、拡大枠にステータスバーの CSV: column 3 of 3 · note が表示された画面](docs/images/column-status.png)
 
 **セルの詳細：**カーソルが `London, UK` にあるとき、ステータスバーの項目を選ぶと、行番号、列番号、見出し、セルの内容が文字で表示されます。引用符内のカンマは区切り文字になりません。
 
-![VS Code で city 見出しの下にある 2 列目の London, UK の詳細を表示した画面](docs/images/cell-details.png)
+![VS Code で 2 列目の London, UK の詳細を表示し、拡大枠にステータスバーの CSV: column 2 of 3 · city が表示された画面](docs/images/cell-details.png)
 
 ## Rainbow CSV との違い
 
@@ -69,3 +69,7 @@ npm run package
 ```
 
 開発方針は [AGENTS.md](AGENTS.md)、ライセンスは [LICENSE](LICENSE) を参照してください。
+
+## AI 支援による開発
+
+NoColorCSV の開発と保守は EETKILLER が行い、OpenAI Codex がコーディングを支援しています。

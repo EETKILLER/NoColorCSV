@@ -2,7 +2,7 @@
   "name": "nocolorcsv",
   "displayName": "NoColorCSV",
   "description": "%extension.description%",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "EETKILLER",
   "repository": {
     "type": "git",
