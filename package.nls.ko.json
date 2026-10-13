@@ -1,0 +1,9 @@
+{
+  "extension.description": "색각 장애가 있는 사용자를 위한 CSV 읽기 확장. 열 번호, 헤더, 키보드 탐색을 제공합니다.",
+  "command.showCurrentColumn": "현재 열 정보 표시",
+  "command.nextColumn": "다음 열로 이동",
+  "command.previousColumn": "이전 열로 이동",
+  "command.nextRow": "같은 열의 다음 행으로 이동",
+  "command.previousRow": "같은 열의 이전 행으로 이동",
+  "configuration.hasHeader": "첫 번째 CSV 레코드를 열 헤더로 사용합니다."
+}

@@ -1,0 +1,15 @@
+{
+  "NoColorCSV current cell": "Celda actual de NoColorCSV",
+  "Row {0}, column {1} of {2}": "Fila {0}, columna {1} de {2}",
+  "Header: {0}": "Encabezado: {0}",
+  "Value: {0}": "Valor: {0}",
+  "Empty cell": "Celda vacía",
+  "CSV: column {0} of {1}": "CSV: columna {0} de {1}",
+  "Full-width commas are text; use ',' to separate CSV columns.": "La coma de ancho completo es texto; usa ',' para separar las columnas CSV.",
+  "Full-width comma": "Coma de ancho completo",
+  "Open a CSV file to use this command.": "Abre un archivo CSV para usar este comando.",
+  "Already at the first column.": "Ya estás en la primera columna de esta fila.",
+  "Already at the last column.": "Ya estás en la última columna de esta fila.",
+  "No earlier row contains this column.": "No hay filas anteriores que contengan esta columna.",
+  "No later row contains this column.": "No hay filas posteriores que contengan esta columna."
+}

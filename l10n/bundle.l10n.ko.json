@@ -1,0 +1,15 @@
+{
+  "NoColorCSV current cell": "NoColorCSV 현재 셀",
+  "Row {0}, column {1} of {2}": "{0}행, {1}열(총 {2}열)",
+  "Header: {0}": "헤더: {0}",
+  "Value: {0}": "값: {0}",
+  "Empty cell": "빈 셀",
+  "CSV: column {0} of {1}": "CSV: {0}/{1}열",
+  "Full-width commas are text; use ',' to separate CSV columns.": "전각 쉼표는 텍스트입니다. CSV 열을 구분하려면 반각 쉼표(,)를 사용하세요.",
+  "Full-width comma": "전각 쉼표",
+  "Open a CSV file to use this command.": "이 명령을 사용하려면 CSV 파일을 여세요.",
+  "Already at the first column.": "현재 행의 첫 번째 열입니다.",
+  "Already at the last column.": "현재 행의 마지막 열입니다.",
+  "No earlier row contains this column.": "앞에 이 열이 있는 행이 없습니다.",
+  "No later row contains this column.": "뒤에 이 열이 있는 행이 없습니다."
+}

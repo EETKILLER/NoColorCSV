@@ -1,0 +1,15 @@
+{
+  "NoColorCSV current cell": "NoColorCSV の現在のセル",
+  "Row {0}, column {1} of {2}": "{0} 行目、{1} 列目（全 {2} 列）",
+  "Header: {0}": "見出し：{0}",
+  "Value: {0}": "値：{0}",
+  "Empty cell": "空のセル",
+  "CSV: column {0} of {1}": "CSV：{0}/{1} 列",
+  "Full-width commas are text; use ',' to separate CSV columns.": "全角カンマは文字として扱われます。列の区切りには半角カンマ「,」を使用してください。",
+  "Full-width comma": "全角カンマ",
+  "Open a CSV file to use this command.": "このコマンドを使用するには CSV ファイルを開いてください。",
+  "Already at the first column.": "この行の先頭列です。",
+  "Already at the last column.": "この行の最終列です。",
+  "No earlier row contains this column.": "前にこの列を含む行はありません。",
+  "No later row contains this column.": "後にこの列を含む行はありません。"
+}

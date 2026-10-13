@@ -1,0 +1,9 @@
+{
+  "extension.description": "色覚特性のある方のための CSV 閲覧拡張機能。列番号、見出し、キーボード操作に対応。",
+  "command.showCurrentColumn": "現在の列情報を表示",
+  "command.nextColumn": "次の列に移動",
+  "command.previousColumn": "前の列に移動",
+  "command.nextRow": "同じ列の次の行に移動",
+  "command.previousRow": "同じ列の前の行に移動",
+  "configuration.hasHeader": "最初の CSV レコードを列の見出しとして使用します。"
+}
