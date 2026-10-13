@@ -4,6 +4,18 @@
 
 NoColorCSV は、色覚障害・色覚特性のある方や、色だけで列を区別しにくい方のための VS Code 用 CSV 閲覧拡張機能です。列番号、見出し、セル内容のプレビュー、キーボード操作を使って、テキスト上のデータを把握できます。
 
+## VS Code での動作画面
+
+以下は、付属の[サンプルファイル](examples/sample.csv)を VS Code で開き、拡張機能を実際に動かして撮影した画面です。画面は英語表示ですが、拡張機能の表示文言は各言語に対応しています。
+
+**現在の列：**カーソルが `hello, world` にあるとき、ステータスバーに 3 列目と見出し `note` が表示されます。
+
+![VS Code で CSV の 3 列目を示し、ステータスバーに列番号と note 見出しを表示した画面](docs/images/column-status.png)
+
+**セルの詳細：**カーソルが `London, UK` にあるとき、ステータスバーの項目を選ぶと、行番号、列番号、見出し、セルの内容が文字で表示されます。引用符内のカンマは区切り文字になりません。
+
+![VS Code で city 見出しの下にある 2 列目の London, UK の詳細を表示した画面](docs/images/cell-details.png)
+
 ## Rainbow CSV との違い
 
 [Rainbow CSV](https://github.com/mechatroner/vscode_rainbow_csv) は列を異なる色で強調し、ステータスバーやホバーでの列情報、列の整列、クエリなども提供します。NoColorCSV は、列の色を見分けずに CSV を読む操作に重点を置いています。

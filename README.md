@@ -4,6 +4,18 @@
 
 NoColorCSV is a VS Code extension for people with color vision differences and anyone who finds color coded columns difficult to distinguish. It identifies CSV cells through column numbers, headers, text previews, and keyboard navigation.
 
+## See it in VS Code
+
+These screenshots show NoColorCSV running with [the included sample file](examples/sample.csv). The interface is shown in English; the extension also provides localized interface text.
+
+**Current column:** With the cursor in `hello, world`, the status bar identifies column 3 and its `note` header.
+
+![VS Code showing a CSV file with the cursor in the third column and NoColorCSV identifying column 3 and the note header in the status bar](docs/images/column-status.png)
+
+**Cell details:** Selecting the status bar item while the cursor is in `London, UK` shows the row, column, header, and cell value as text. The comma inside the quoted field does not start a new column.
+
+![VS Code showing NoColorCSV cell details for the quoted value London, UK in column 2 under the city header](docs/images/cell-details.png)
+
 ## How it differs from Rainbow CSV
 
 [Rainbow CSV](https://github.com/mechatroner/vscode_rainbow_csv) highlights columns in distinct colors and also offers column information in the status bar and on hover, alignment, queries, and other data tools. NoColorCSV focuses on reading CSV without having to distinguish column colors.
