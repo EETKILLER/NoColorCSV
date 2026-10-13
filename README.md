@@ -13,7 +13,7 @@ NoColorCSV 是一个面向色觉差异用户的 VS Code CSV 阅读插件。当�
 
 ## 开发环境与安装
 
-需要安装 [Visual Studio Code](https://code.visualstudio.com/) 和 Node.js 20 或更新版本。克隆仓库后，在仓库根目录运行：
+需要安装 [Visual Studio Code](https://code.visualstudio.com/) 和 Node.js 24。克隆仓库后，在仓库根目录运行：
 
 ```sh
 npm ci
@@ -39,6 +39,7 @@ npm test
 ```
 
 `npm test` 会先编译，再使用 Node.js 内置测试运行器执行列定位单元测试。编译产物在 `out/`，不会提交到 Git。
+GitHub Actions 会对拉取请求自动执行 `npm ci` 和 `npm test`。
 
 ## 当前范围
 
