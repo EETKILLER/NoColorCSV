@@ -1,8 +1,8 @@
 {
   "name": "nocolorcsv",
   "displayName": "NoColorCSV",
-  "description": "Read CSV columns without relying on color.",
-  "version": "0.1.0",
+  "description": "%extension.description%",
+  "version": "0.1.1",
   "publisher": "EETKILLER",
   "repository": {
     "type": "git",
@@ -29,27 +29,33 @@
     "onCommand:nocolorcsv.previousRow"
   ],
   "main": "./out/extension.js",
+  "l10n": "./l10n",
   "contributes": {
     "commands": [
       {
         "command": "nocolorcsv.showCurrentColumn",
-        "title": "NoColorCSV: Show Current Column"
+        "category": "NoColorCSV",
+        "title": "%command.showCurrentColumn%"
       },
       {
         "command": "nocolorcsv.nextColumn",
-        "title": "NoColorCSV: Next Column"
+        "category": "NoColorCSV",
+        "title": "%command.nextColumn%"
       },
       {
         "command": "nocolorcsv.previousColumn",
-        "title": "NoColorCSV: Previous Column"
+        "category": "NoColorCSV",
+        "title": "%command.previousColumn%"
       },
       {
         "command": "nocolorcsv.nextRow",
-        "title": "NoColorCSV: Next Row in Current Column"
+        "category": "NoColorCSV",
+        "title": "%command.nextRow%"
       },
       {
         "command": "nocolorcsv.previousRow",
-        "title": "NoColorCSV: Previous Row in Current Column"
+        "category": "NoColorCSV",
+        "title": "%command.previousRow%"
       }
     ],
     "keybindings": [
@@ -84,7 +90,7 @@
         "nocolorcsv.hasHeader": {
           "type": "boolean",
           "default": true,
-          "description": "Treat the first CSV record as column headers."
+          "description": "%configuration.hasHeader%"
         }
       }
     }

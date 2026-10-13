@@ -1,0 +1,9 @@
+{
+  "extension.description": "面向色觉障碍人士的 CSV 阅读扩展，提供列编号、表头和键盘导航。",
+  "command.showCurrentColumn": "显示当前列信息",
+  "command.nextColumn": "转到下一列",
+  "command.previousColumn": "转到上一列",
+  "command.nextRow": "转到本列下一行",
+  "command.previousRow": "转到本列上一行",
+  "configuration.hasHeader": "将 CSV 第一条记录用作列标题。"
+}

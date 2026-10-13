@@ -40,10 +40,14 @@ function shortText(value: string, limit: number): string {
 }
 
 function cellDescription(cell: CsvCellContext): string {
-  const column = cell.columnIndex + 1;
-  const header = cell.header ? ` (${shortText(cell.header, 60)})` : '';
-  const value = shortText(cell.value, 120) || '(empty)';
-  return `Row ${cell.rowIndex + 1}, column ${column} of ${cell.columnCount}${header}: ${value}`;
+  const parts = [vscode.l10n.t('Row {0}, column {1} of {2}',
+    cell.rowIndex + 1, cell.columnIndex + 1, cell.columnCount)];
+  if (cell.header) {
+    parts.push(vscode.l10n.t('Header: {0}', shortText(cell.header, 60)));
+  }
+  const value = shortText(cell.value, 120);
+  parts.push(value ? vscode.l10n.t('Value: {0}', value) : vscode.l10n.t('Empty cell'));
+  return parts.join(' · ');
 }
 
 function hasFullwidthCommaHint(editor: vscode.TextEditor, cell: CsvCellContext): boolean {
@@ -56,7 +60,7 @@ function hasFullwidthCommaHint(editor: vscode.TextEditor, cell: CsvCellContext):
 
 export function activate(context: vscode.ExtensionContext): void {
   const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-  statusBar.name = 'NoColorCSV current cell';
+  statusBar.name = vscode.l10n.t('NoColorCSV current cell');
   statusBar.command = 'nocolorcsv.showCurrentColumn';
 
   const updateStatusBar = (editor: vscode.TextEditor | undefined): void => {
@@ -65,14 +69,14 @@ export function activate(context: vscode.ExtensionContext): void {
       return;
     }
     const { cell } = currentContext(editor);
-    if (hasFullwidthCommaHint(editor, cell)) {
-      statusBar.text = 'CSV column: 1 · 全角逗号';
-      statusBar.tooltip = '这一行使用了全角逗号“，”。CSV 分隔符是半角逗号“,”。';
-    } else {
-      const header = cell.header ? `: ${shortText(cell.header, 30)}` : '';
-      statusBar.text = `CSV ${cell.columnIndex + 1}/${cell.columnCount}${header}`;
-      statusBar.tooltip = `${cellDescription(cell)}. Click for details.`;
-    }
+    const header = cell.header ? ` · ${shortText(cell.header, 30)}` : '';
+    const fullwidthHint = hasFullwidthCommaHint(editor, cell);
+    const hint = fullwidthHint ? ` · ${vscode.l10n.t('Full-width comma')}` : '';
+    statusBar.text = `${vscode.l10n.t('CSV: column {0} of {1}',
+      cell.columnIndex + 1, cell.columnCount)}${header}${hint}`;
+    statusBar.tooltip = fullwidthHint
+      ? `${cellDescription(cell)} · ${vscode.l10n.t("Full-width commas are text; use ',' to separate CSV columns.")}`
+      : cellDescription(cell);
     statusBar.show();
   };
 
@@ -93,24 +97,21 @@ export function activate(context: vscode.ExtensionContext): void {
     'nocolorcsv.showCurrentColumn',
     (editor) => {
       if (!isCsvEditor(editor)) {
-        void vscode.window.showWarningMessage('Open a CSV file to show its current column.');
+        void vscode.window.showWarningMessage(vscode.l10n.t('Open a CSV file to use this command.'));
         return;
       }
       const { cell } = currentContext(editor);
-      if (hasFullwidthCommaHint(editor, cell)) {
-        void vscode.window.showInformationMessage(
-          'Current column: 1. 检测到全角逗号“，”；CSV 分隔符应使用半角逗号“,”。'
-        );
-        return;
-      }
-      void vscode.window.showInformationMessage(`Current column: ${cell.columnIndex + 1}. ${cellDescription(cell)}`);
+      const hint = hasFullwidthCommaHint(editor, cell)
+        ? ` · ${vscode.l10n.t("Full-width commas are text; use ',' to separate CSV columns.")}`
+        : '';
+      void vscode.window.showInformationMessage(`${cellDescription(cell)}${hint}`);
     }
   );
 
   const move = (kind: 'column' | 'row', direction: -1 | 1): ((editor: vscode.TextEditor) => void) =>
     (editor) => {
       if (!isCsvEditor(editor)) {
-        void vscode.window.showWarningMessage('Open a CSV file to navigate its cells.');
+        void vscode.window.showWarningMessage(vscode.l10n.t('Open a CSV file to use this command.'));
         return;
       }
       const csv = parsedCsv(editor.document);
@@ -119,17 +120,24 @@ export function activate(context: vscode.ExtensionContext): void {
         ? adjacentColumnOffset(csv, offset, direction)
         : adjacentRowOffset(csv, offset, direction);
       if (target === undefined) {
-        const label = `${direction < 0 ? 'previous' : 'next'} ${kind}`;
-        void vscode.window.showInformationMessage(`No ${label} is available.`);
+        let message: string;
+        if (kind === 'column') {
+          message = direction < 0
+            ? vscode.l10n.t('Already at the first column.')
+            : vscode.l10n.t('Already at the last column.');
+        } else {
+          message = direction < 0
+            ? vscode.l10n.t('No earlier row contains this column.')
+            : vscode.l10n.t('No later row contains this column.');
+        }
+        void vscode.window.showInformationMessage(message);
         return;
       }
 
       const position = editor.document.positionAt(target);
       editor.selection = new vscode.Selection(position, position);
       editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenterIfOutsideViewport);
-      const cell = getCellContext(csv, target, hasHeader());
       updateStatusBar(editor);
-      void vscode.window.showInformationMessage(cellDescription(cell));
     };
 
   context.subscriptions.push(

@@ -1,0 +1,9 @@
+{
+  "extension.description": "Accessible CSV reading for people with color vision differences, with column numbers, headers, and keyboard navigation.",
+  "command.showCurrentColumn": "Show Current Column",
+  "command.nextColumn": "Go to Next Column",
+  "command.previousColumn": "Go to Previous Column",
+  "command.nextRow": "Go to Next Row in Current Column",
+  "command.previousRow": "Go to Previous Row in Current Column",
+  "configuration.hasHeader": "Use the first CSV record as column headers."
+}

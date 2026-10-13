@@ -1,0 +1,15 @@
+{
+  "NoColorCSV current cell": "NoColorCSV 当前单元格",
+  "Row {0}, column {1} of {2}": "第 {0} 行，第 {1} 列（共 {2} 列）",
+  "Header: {0}": "列标题：{0}",
+  "Value: {0}": "内容：{0}",
+  "Empty cell": "空单元格",
+  "CSV: column {0} of {1}": "CSV：第 {0}/{1} 列",
+  "Full-width commas are text; use ',' to separate CSV columns.": "全角逗号属于文本；请用半角逗号“,”分隔 CSV 列。",
+  "Full-width comma": "全角逗号",
+  "Open a CSV file to use this command.": "请先打开 CSV 文件。",
+  "Already at the first column.": "已到本行第一列。",
+  "Already at the last column.": "已到本行最后一列。",
+  "No earlier row contains this column.": "前面没有包含此列的行。",
+  "No later row contains this column.": "后面没有包含此列的行。"
+}
