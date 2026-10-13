@@ -4,6 +4,18 @@
 
 NoColorCSV 是面向色觉障碍人士及其他不便依赖颜色区分列的用户开发的 VS Code CSV 阅读扩展。它通过列编号、表头、单元格内容摘要和键盘导航，帮助用户在原始文本中定位数据。
 
+## VS Code 实机展示
+
+以下截图使用仓库中的[示例文件](examples/sample.csv)在 VS Code 中实际运行扩展拍摄。截图界面为英文；扩展也提供本地化界面文字。
+
+**当前列：**光标位于 `hello, world` 时，状态栏显示第 3 列及表头 `note`。
+
+![VS Code 中打开 CSV，光标位于第三列，NoColorCSV 状态栏显示第 3 列和 note 表头](docs/images/column-status.png)
+
+**单元格详情：**光标位于 `London, UK` 时，点击状态栏可用文字查看行号、列号、表头和单元格内容。引号内的逗号不会被当作分隔符。
+
+![VS Code 中 NoColorCSV 显示 city 表头下第 2 列的 London, UK 单元格详情](docs/images/cell-details.png)
+
 ## 与 Rainbow CSV 的区别
 
 [Rainbow CSV](https://github.com/mechatroner/vscode_rainbow_csv) 为不同列提供颜色高亮，也提供状态栏列信息、悬停提示、对齐、数据查询等功能。NoColorCSV 专注于无需辨别列颜色的阅读流程：
