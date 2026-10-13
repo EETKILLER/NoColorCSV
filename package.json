@@ -2,7 +2,17 @@
   "name": "nocolorcsv",
   "displayName": "NoColorCSV",
   "description": "Read CSV columns without relying on color.",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "publisher": "EETKILLER",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EETKILLER/NoColorCSV.git"
+  },
+  "keywords": [
+    "csv",
+    "accessibility",
+    "navigation"
+  ],
   "license": "MIT",
   "engines": {
     "vscode": "^1.85.0"
@@ -12,7 +22,11 @@
   ],
   "activationEvents": [
     "onStartupFinished",
-    "onCommand:nocolorcsv.showCurrentColumn"
+    "onCommand:nocolorcsv.showCurrentColumn",
+    "onCommand:nocolorcsv.nextColumn",
+    "onCommand:nocolorcsv.previousColumn",
+    "onCommand:nocolorcsv.nextRow",
+    "onCommand:nocolorcsv.previousRow"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -20,16 +34,70 @@
       {
         "command": "nocolorcsv.showCurrentColumn",
         "title": "NoColorCSV: Show Current Column"
+      },
+      {
+        "command": "nocolorcsv.nextColumn",
+        "title": "NoColorCSV: Next Column"
+      },
+      {
+        "command": "nocolorcsv.previousColumn",
+        "title": "NoColorCSV: Previous Column"
+      },
+      {
+        "command": "nocolorcsv.nextRow",
+        "title": "NoColorCSV: Next Row in Current Column"
+      },
+      {
+        "command": "nocolorcsv.previousRow",
+        "title": "NoColorCSV: Previous Row in Current Column"
       }
-    ]
+    ],
+    "keybindings": [
+      {
+        "command": "nocolorcsv.nextColumn",
+        "key": "ctrl+alt+shift+right",
+        "mac": "cmd+alt+shift+right",
+        "when": "editorTextFocus && resourceExtname =~ /^[.]csv$/i"
+      },
+      {
+        "command": "nocolorcsv.previousColumn",
+        "key": "ctrl+alt+shift+left",
+        "mac": "cmd+alt+shift+left",
+        "when": "editorTextFocus && resourceExtname =~ /^[.]csv$/i"
+      },
+      {
+        "command": "nocolorcsv.nextRow",
+        "key": "ctrl+alt+shift+down",
+        "mac": "cmd+alt+shift+down",
+        "when": "editorTextFocus && resourceExtname =~ /^[.]csv$/i"
+      },
+      {
+        "command": "nocolorcsv.previousRow",
+        "key": "ctrl+alt+shift+up",
+        "mac": "cmd+alt+shift+up",
+        "when": "editorTextFocus && resourceExtname =~ /^[.]csv$/i"
+      }
+    ],
+    "configuration": {
+      "title": "NoColorCSV",
+      "properties": {
+        "nocolorcsv.hasHeader": {
+          "type": "boolean",
+          "default": true,
+          "description": "Treat the first CSV record as column headers."
+        }
+      }
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
-    "test": "npm run compile && node --test out/test/column.test.js"
+    "test": "npm run compile && node --test out/test/column.test.js",
+    "package": "npm run compile && vsce package --no-dependencies"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
     "@types/vscode": "1.85.0",
+    "@vscode/vsce": "^4.0.0",
     "typescript": "^5.9.3"
   }
 }

@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { getColumnAtOffset } from '../column';
+import {
+  adjacentColumnOffset,
+  adjacentRowOffset,
+  getCellContext,
+  locateCsvPosition,
+  parseCsv
+} from '../csv';
 
 test('counts ordinary columns from one', () => {
   const csv = 'name,age,city';
@@ -56,4 +63,46 @@ test('handles empty fields and rejects offsets outside the document', () => {
   assert.equal(getColumnAtOffset('', 0), 1);
   assert.throws(() => getColumnAtOffset('a', -1), RangeError);
   assert.throws(() => getColumnAtOffset('a', 2), RangeError);
+});
+
+test('provides header, value, and logical row across a multiline quoted cell', () => {
+  const text = 'name,city,note\r\nAda,"London,\r\nUK","said ""Hi"""';
+  const csv = parseCsv(text);
+  const city = getCellContext(csv, text.indexOf('UK'), true);
+  assert.equal(city.rowIndex, 1);
+  assert.equal(city.columnIndex, 1);
+  assert.equal(city.columnCount, 3);
+  assert.equal(city.header, 'city');
+  assert.equal(city.value, 'London,\r\nUK');
+  assert.equal(getCellContext(csv, text.indexOf('UK'), false).header, undefined);
+  assert.equal(getCellContext(csv, text.indexOf('said'), true).value, 'said "Hi"');
+});
+
+test('navigates between quoted and empty fields', () => {
+  const text = 'name,city,note\nAda,"London, UK",';
+  const csv = parseCsv(text);
+  const ada = text.indexOf('Ada');
+  const city = adjacentColumnOffset(csv, ada, 1);
+  assert.equal(city, text.indexOf('London'));
+  assert.equal(adjacentColumnOffset(csv, city!, 1), text.length);
+  assert.equal(adjacentColumnOffset(csv, ada, -1), undefined);
+  assert.equal(getCellContext(csv, text.length, true).value, '');
+});
+
+test('moves to the same column in another logical row, skipping short rows', () => {
+  const text = 'a,b,c\n1,2\n3,4,5';
+  const csv = parseCsv(text);
+  const headerThird = text.indexOf('c');
+  const lastThird = text.lastIndexOf('5');
+  assert.equal(adjacentRowOffset(csv, headerThird, 1), lastThird);
+  assert.equal(adjacentRowOffset(csv, lastThird, -1), headerThird);
+  assert.equal(adjacentRowOffset(csv, lastThird, 1), undefined);
+});
+
+test('locates rows at CRLF boundaries and decodes a BOM header', () => {
+  const text = '\uFEFF"name",age\r\nAda,42';
+  const csv = parseCsv(text);
+  assert.deepEqual(locateCsvPosition(csv, text.indexOf('Ada')), { rowIndex: 1, columnIndex: 0 });
+  assert.equal(getCellContext(csv, text.indexOf('Ada'), true).header, 'name');
+  assert.equal(adjacentRowOffset(csv, text.indexOf('name'), 1), text.indexOf('Ada'));
 });
