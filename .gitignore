@@ -69,7 +69,21 @@ web_modules/
 # dotenv environment variable files
 .env
 .env.*
-!.env.example
+
+# Local credentials and developer-specific settings
+.npmrc
+.yarnrc.yml
+.pypirc
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+.vscode/settings.json
+.vscode/*.local.json
+*.code-workspace
+*.vsix
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

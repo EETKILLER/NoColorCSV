@@ -1,5 +1,8 @@
 .vscode/**
 .vscode-test/**
+.github/**
+.gitignore
+AGENTS.md
 src/**
 examples/**
 node_modules/**
