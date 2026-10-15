@@ -20,5 +20,12 @@
   "Column {0}: symbol {1}": "{0}열: 기호 {1}",
   "Column {0}: symbol {1} (repeats every {2} columns)": "{0}열: 기호 {1}({2}열마다 반복)",
   "Focus marks: current cell and visible column": "포커스 표시: 현재 셀과 보이는 같은 열",
-  "Focus marks: current cell": "포커스 표시: 현재 셀"
+  "Focus marks: current cell": "포커스 표시: 현재 셀",
+  "Unclosed quoted field.": "따옴표로 감싼 필드가 닫히지 않았습니다.",
+  "Unexpected character after a closing quote.": "닫는 따옴표 뒤에 예상치 못한 문자가 있습니다.",
+  "Double quote inside an unquoted field.": "따옴표로 감싸지 않은 필드에 큰따옴표가 있습니다.",
+  "Expected {0} columns, found {1}.": "열은 {0}개여야 하지만 {1}개입니다.",
+  "More CSV problems were omitted.": "추가 CSV 문제는 표시하지 않았습니다.",
+  "Cannot navigate from a malformed CSV field.": "형식이 잘못된 CSV 필드에서는 이동할 수 없습니다.",
+  "Cannot navigate to a malformed CSV field.": "형식이 잘못된 CSV 필드로는 이동할 수 없습니다."
 }

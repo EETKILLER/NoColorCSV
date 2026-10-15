@@ -9,5 +9,6 @@
   "configuration.columnFocus": "現在のセルまたは列を目に見える印で示します。off では印を表示しません。",
   "configuration.statusBar": "現在の CSV 論理行、列、見出しをステータスバーに表示します。",
   "configuration.columnSymbols": "現在の列番号の横に記号を表示します。記号は 8 列ごとに繰り返します。",
-  "configuration.accessibilityPreset": "拡張機能の表示プリセットを選びます。明示的に設定したフォーカス、ステータスバー、記号の設定が優先されます。"
+  "configuration.accessibilityPreset": "拡張機能の表示プリセットを選びます。明示的に設定したフォーカス、ステータスバー、記号の設定が優先されます。",
+  "configuration.validationEnabled": "CSV の構文エラーと列数の警告を読み取り専用で［問題］に表示します。"
 }

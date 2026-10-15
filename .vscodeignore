@@ -7,6 +7,7 @@ src/**
 examples/**
 docs/development/**
 docs/v0.3-handoff.md
+docs/v0.4-handoff.md
 node_modules/**
 tsconfig.json
 out/test/**

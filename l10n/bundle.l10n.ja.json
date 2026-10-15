@@ -20,5 +20,12 @@
   "Column {0}: symbol {1}": "{0} 列目：記号 {1}",
   "Column {0}: symbol {1} (repeats every {2} columns)": "{0} 列目：記号 {1}（{2} 列ごとに繰り返し）",
   "Focus marks: current cell and visible column": "フォーカス表示：現在のセルと表示中の同じ列",
-  "Focus marks: current cell": "フォーカス表示：現在のセル"
+  "Focus marks: current cell": "フォーカス表示：現在のセル",
+  "Unclosed quoted field.": "引用符で囲まれたフィールドが閉じられていません。",
+  "Unexpected character after a closing quote.": "閉じる引用符の後に予期しない文字があります。",
+  "Double quote inside an unquoted field.": "引用符で囲まれていないフィールドに二重引用符があります。",
+  "Expected {0} columns, found {1}.": "列数は {0} のはずですが、{1} あります。",
+  "More CSV problems were omitted.": "ほかの CSV の問題は省略されました。",
+  "Cannot navigate from a malformed CSV field.": "形式が正しくない CSV フィールドからは移動できません。",
+  "Cannot navigate to a malformed CSV field.": "形式が正しくない CSV フィールドには移動できません。"
 }

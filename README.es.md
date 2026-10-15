@@ -57,6 +57,12 @@ La opción `nocolorcsv.hasHeader` utiliza el primer registro del CSV como encabe
 
 El analizador admite campos entre comillas, comas y saltos de línea dentro de esos campos, comillas dobles escapadas y BOM UTF-8. El separador es la coma ASCII `,`; la coma de ancho completo `，` se trata como texto.
 
+### Validación CSV
+
+`nocolorcsv.validation.enabled` está activado por defecto. **Problemas** muestra comillas sin cerrar, caracteres después de cerrar comillas, comillas dentro de campos sin comillas y filas con distinta cantidad de columnas. Con encabezados, la primera fila fija la cantidad esperada; sin ellos, se usa el primer registro lógico no vacío. Un salto de línea final no agrega un registro. Los diagnósticos son de solo lectura, se actualizan tras editar y desaparecen al cambiar o cerrar el CSV o desactivar la validación. Se muestran los primeros 200 problemas y un aviso de texto si hay más.
+
+La navegación parte del extremo activo de la selección y reduce varios cursores a uno. Un campo mal formado no puede ser origen ni destino. En un límite, el cursor no se mueve y el aviso aparece una sola vez hasta que se logre mover. Si las teclas predeterminadas entran en conflicto, busca `NoColorCSV` en **Métodos abreviados de teclado** para cambiarlas; los comandos siguen disponibles en la Paleta de comandos.
+
 ## Desarrollo
 
 Se requieren [Visual Studio Code](https://code.visualstudio.com/) y Node.js 24.

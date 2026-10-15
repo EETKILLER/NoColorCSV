@@ -57,6 +57,12 @@ The `nocolorcsv.hasHeader` setting treats the first CSV record as headers by def
 
 Parsing supports quoted fields, commas and line breaks inside quotes, escaped double quotes, and UTF-8 BOM. The delimiter is the ASCII comma `,`; a full width comma `，` is treated as text.
 
+### CSV validation
+
+`nocolorcsv.validation.enabled` is on by default. The **Problems** panel reports unclosed quotes, unexpected text after a closing quote, quotes inside unquoted fields, and rows with a different number of columns. The first row sets the expected count when headers are enabled; otherwise the first nonblank logical record does. A final line ending adds no record. Diagnostics are read-only, update after edits, and clear when you switch away from or close the CSV, or turn validation off. The first 200 problems are shown, followed by a notice if more exist.
+
+Navigation uses the active end of a selection and collapses multiple cursors to one. A malformed field cannot be used as a navigation source or destination. At an edge, the command leaves the cursor in place and shows one short message until navigation succeeds. If a default key combination conflicts with your system or another extension, search for `NoColorCSV` in **Keyboard Shortcuts** and assign another key; the commands remain in the Command Palette.
+
 ## Develop
 
 Requirements: [Visual Studio Code](https://code.visualstudio.com/) and Node.js 24.

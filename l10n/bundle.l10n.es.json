@@ -20,5 +20,12 @@
   "Column {0}: symbol {1}": "Columna {0}: símbolo {1}",
   "Column {0}: symbol {1} (repeats every {2} columns)": "Columna {0}: símbolo {1} (se repite cada {2} columnas)",
   "Focus marks: current cell and visible column": "Marcas de foco: celda actual y columna visible",
-  "Focus marks: current cell": "Marcas de foco: celda actual"
+  "Focus marks: current cell": "Marcas de foco: celda actual",
+  "Unclosed quoted field.": "El campo entre comillas no está cerrado.",
+  "Unexpected character after a closing quote.": "Hay un carácter inesperado después de cerrar las comillas.",
+  "Double quote inside an unquoted field.": "Hay comillas dobles dentro de un campo sin comillas.",
+  "Expected {0} columns, found {1}.": "Se esperaban {0} columnas, pero hay {1}.",
+  "More CSV problems were omitted.": "Se omitieron más problemas de CSV.",
+  "Cannot navigate from a malformed CSV field.": "No se puede navegar desde un campo CSV mal formado.",
+  "Cannot navigate to a malformed CSV field.": "No se puede navegar a un campo CSV mal formado."
 }

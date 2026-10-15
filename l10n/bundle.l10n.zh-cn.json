@@ -20,5 +20,12 @@
   "Column {0}: symbol {1}": "第 {0} 列：符号 {1}",
   "Column {0}: symbol {1} (repeats every {2} columns)": "第 {0} 列：符号 {1}（每 {2} 列循环）",
   "Focus marks: current cell and visible column": "焦点标记：当前单元格及可见的同列单元格",
-  "Focus marks: current cell": "焦点标记：当前单元格"
+  "Focus marks: current cell": "焦点标记：当前单元格",
+  "Unclosed quoted field.": "带引号的字段未闭合。",
+  "Unexpected character after a closing quote.": "闭合引号后出现非预期字符。",
+  "Double quote inside an unquoted field.": "未加引号的字段中出现双引号。",
+  "Expected {0} columns, found {1}.": "应有 {0} 列，实际有 {1} 列。",
+  "More CSV problems were omitted.": "还有更多 CSV 问题未显示。",
+  "Cannot navigate from a malformed CSV field.": "无法从格式错误的 CSV 字段导航。",
+  "Cannot navigate to a malformed CSV field.": "无法导航到格式错误的 CSV 字段。"
 }
