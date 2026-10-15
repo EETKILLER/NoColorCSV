@@ -2,7 +2,7 @@
   "name": "nocolorcsv",
   "displayName": "NoColorCSV",
   "description": "%extension.description%",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "publisher": "EETKILLER",
   "repository": {
     "type": "git",
@@ -121,6 +121,11 @@
           ],
           "default": "standard",
           "description": "%configuration.accessibilityPreset%"
+        },
+        "nocolorcsv.validation.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "%configuration.validationEnabled%"
         }
       }
     }

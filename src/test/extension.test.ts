@@ -17,6 +17,7 @@ interface MockDocument {
 interface MockEditor {
   readonly document: MockDocument;
   selection: { active: vscode.Position };
+  selections: { active: vscode.Position }[];
   visibleRanges: vscode.Range[];
   readonly decorations: Map<object, readonly (vscode.Range | vscode.DecorationOptions)[]>;
   setDecorations(type: object, ranges: readonly (vscode.Range | vscode.DecorationOptions)[]): void;
@@ -48,14 +49,23 @@ function document(path: string, text: string): MockDocument {
 }
 
 function editor(doc: MockDocument, cursor: number): MockEditor {
+  let secondary: { active: vscode.Position }[] = [];
   const result: MockEditor = {
     document: doc,
     selection: { active: doc.positionAt(cursor) },
+    selections: [{ active: doc.positionAt(cursor) }],
     visibleRanges: [{ start: doc.positionAt(0), end: doc.positionAt(doc.text.length) } as vscode.Range],
     decorations: new Map(),
     setDecorations(type, ranges) { result.decorations.set(type, ranges); },
     revealRange() {}
   };
+  Object.defineProperty(result, 'selections', {
+    get: () => [result.selection, ...secondary],
+    set: (value: { active: vscode.Position }[]) => {
+      result.selection = value[0];
+      secondary = value.slice(1);
+    }
+  });
   return result;
 }
 
@@ -65,9 +75,10 @@ function harness(active: MockEditor) {
   const options: Array<{ borderStyle?: string; before?: { contentText: string }; after?: object }> = [];
   const types: object[] = [];
   const messages: string[] = [];
+  const diagnosticEntries = new Map<string, readonly vscode.Diagnostic[]>();
   const explicit = new Set<string>();
   const config = new Proxy({ hasHeader: true, columnFocus: 'column', statusBar: true,
-    columnSymbols: false, accessibilityPreset: 'standard' }, {
+    columnSymbols: false, accessibilityPreset: 'standard', 'validation.enabled': true }, {
     set(target, property, value) {
       explicit.add(String(property));
       return Reflect.set(target, property, value);
@@ -83,6 +94,12 @@ function harness(active: MockEditor) {
   };
   const mock = {
     ThemeColor: class { constructor(readonly id: string) {} },
+    DiagnosticSeverity: { Error: 0, Warning: 1, Information: 2 },
+    Diagnostic: class {
+      source = '';
+      constructor(readonly range: vscode.Range, readonly message: string,
+        readonly severity: vscode.DiagnosticSeverity) {}
+    },
     Range: class { constructor(readonly start: vscode.Position, readonly end: vscode.Position) {} },
     Selection: class { active: vscode.Position; constructor(start: vscode.Position) { this.active = start; } },
     StatusBarAlignment: { Right: 1 }, TextEditorRevealType: { InCenterIfOutsideViewport: 1 },
@@ -102,6 +119,12 @@ function harness(active: MockEditor) {
       showInformationMessage: (message: string) => { messages.push(message); },
       showWarningMessage: (message: string) => { messages.push(message); }
     },
+    languages: { createDiagnosticCollection: () => ({
+      set: (uri: { path: string }, entries: readonly vscode.Diagnostic[]) =>
+        diagnosticEntries.set(uri.path, entries),
+      delete: (uri: { path: string }) => diagnosticEntries.delete(uri.path),
+      clear: () => diagnosticEntries.clear(), dispose() { diagnosticEntries.clear(); }
+    }) },
     workspace: {
       getConfiguration: () => ({
         get: (name: keyof typeof config) => config[name],
@@ -125,6 +148,7 @@ function harness(active: MockEditor) {
     const subscriptions: Array<{ dispose(): void }> = [];
     extension.activate({ subscriptions } as vscode.ExtensionContext);
     return { mock, status, handlers, commands, config, explicit, options, types, messages,
+      diagnosticEntries,
       dispose: () => subscriptions.forEach((item) => item.dispose()) };
   } finally {
     loader._load = originalLoad;
@@ -316,5 +340,83 @@ test('an empty field keeps its numeric symbol label without changing Unicode CSV
     const marker = opened.decorations.get(host.types[2])?.[0] as vscode.DecorationOptions;
     assert.equal(marker.renderOptions?.after?.contentText, '3 ▲');
     assert.equal(doc.getText(), original);
+  } finally { host.dispose(); }
+});
+
+test('Problems follow edits, settings, active editor, and close without changing CSV text', async () => {
+  const doc = document('/sample.csv', 'a,b\n1,"x');
+  const opened = editor(doc, 0);
+  const host = harness(opened);
+  try {
+    await delay(180);
+    const issue = host.diagnosticEntries.get('/sample.csv')?.[0];
+    assert.equal(issue?.message, 'Unclosed quoted field.');
+    assert.equal(issue?.source, 'NoColorCSV');
+    assert.equal(doc.offsetAt(issue!.range.start), doc.text.length - 1);
+    doc.text = 'a,b\n1,"x"';
+    doc.version += 1;
+    host.handlers.get('document')?.({ document: doc });
+    assert.equal(host.diagnosticEntries.size, 0);
+    await delay(180);
+    assert.deepEqual(host.diagnosticEntries.get('/sample.csv'), []);
+    doc.text = 'a,b\n1';
+    doc.version += 1;
+    opened.visibleRanges = [{ start: doc.positionAt(0), end: doc.positionAt(doc.text.length) } as vscode.Range];
+    opened.selection.active = doc.positionAt(0);
+    host.handlers.get('document')?.({ document: doc });
+    await delay(180);
+    assert.equal(host.diagnosticEntries.get('/sample.csv')?.[0].severity, 1);
+    host.config['validation.enabled'] = false;
+    host.handlers.get('configuration')?.({ affectsConfiguration: () => true });
+    assert.equal(host.diagnosticEntries.size, 0);
+    host.config['validation.enabled'] = true;
+    host.handlers.get('configuration')?.({ affectsConfiguration: () => true });
+    await delay(180);
+    assert.equal(host.diagnosticEntries.size, 1);
+    const other = editor(document('/notes.txt', 'hello'), 0);
+    host.mock.window.activeTextEditor = other;
+    host.handlers.get('active')?.(other);
+    assert.equal(host.diagnosticEntries.size, 0);
+    host.handlers.get('close')?.(doc);
+    assert.equal(host.diagnosticEntries.size, 0);
+    assert.equal(doc.text, 'a,b\n1');
+  } finally { host.dispose(); }
+});
+
+test('navigation follows the active end of a selection and does not repeat boundary notices', () => {
+  const text = 'a,b,c\r\n1,"x\r\ny",3\r\n2\r\n4,,6';
+  const doc = document('/sample.csv', text);
+  const opened = editor(doc, text.indexOf('y'));
+  const host = harness(opened);
+  try {
+    host.commands.get('nocolorcsv.nextRow')?.(opened);
+    assert.equal(doc.offsetAt(opened.selection.active), text.indexOf(',,') + 1);
+    host.commands.get('nocolorcsv.nextRow')?.(opened);
+    host.commands.get('nocolorcsv.nextRow')?.(opened);
+    assert.equal(host.messages.filter((item) => item.includes('No later row')).length, 1);
+    host.commands.get('nocolorcsv.previousColumn')?.(opened);
+    assert.equal(doc.offsetAt(opened.selection.active), text.indexOf('4,,'));
+  } finally { host.dispose(); }
+});
+
+test('navigation collapses multiple cursors and explains malformed fields', () => {
+  const text = 'a,b\n1,"x"z\n2,ok';
+  const doc = document('/sample.csv', text);
+  const opened = editor(doc, text.indexOf('1'));
+  const host = harness(opened);
+  try {
+    opened.selections = [{ active: doc.positionAt(text.indexOf('b')) },
+      { active: doc.positionAt(text.indexOf('1')) }];
+    host.commands.get('nocolorcsv.nextRow')?.(opened);
+    assert.equal(doc.offsetAt(opened.selection.active), text.indexOf('ok'));
+    assert.equal(opened.selections.length, 1);
+    host.commands.get('nocolorcsv.previousRow')?.(opened);
+    assert.equal(doc.offsetAt(opened.selection.active), text.indexOf('b'));
+    opened.selection.active = doc.positionAt(text.indexOf('1'));
+    host.commands.get('nocolorcsv.nextColumn')?.(opened);
+    assert.match(host.messages[host.messages.length - 1] ?? '', /malformed CSV field/);
+    opened.selection.active = doc.positionAt(text.indexOf('z'));
+    host.commands.get('nocolorcsv.nextRow')?.(opened);
+    assert.match(host.messages[host.messages.length - 1] ?? '', /from a malformed/);
   } finally { host.dispose(); }
 });

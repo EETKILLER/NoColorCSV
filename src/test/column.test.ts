@@ -6,7 +6,8 @@ import {
   adjacentRowOffset,
   getCellContext,
   locateCsvPosition,
-  parseCsv
+  parseCsv,
+  validateCsv
 } from '../csv';
 import { CsvSnapshotCache, getFocusState } from '../focus';
 
@@ -181,7 +182,7 @@ test('snapshot cache reuses one version and reparses after a document change', (
   assert.notEqual(cache.get(document, 2, () => 'a,b'), second);
 });
 
-test('keeps tolerant malformed-quote positioning until CSV diagnostics are added', () => {
+test('keeps tolerant positioning in malformed CSV and reports syntax errors', () => {
   const unclosed = parseCsv('a,"unfinished\ncontinuation');
   assert.equal(unclosed.records.length, 1);
   assert.equal(getCellContext(unclosed, unclosed.text.length, false).value, 'unfinished\ncontinuation');
@@ -193,4 +194,46 @@ test('keeps tolerant malformed-quote positioning until CSV diagnostics are added
   const bare = parseCsv('abc"def,ghi');
   assert.equal(bare.records[0].fields.length, 2);
   assert.equal(getCellContext(bare, 0, false).value, 'abc"def');
+  assert.deepEqual(unclosed.syntaxIssues.map((issue) => issue.code), ['unclosedQuote']);
+  assert.deepEqual(trailing.syntaxIssues.map((issue) => issue.code), ['afterQuote']);
+  assert.deepEqual(bare.syntaxIssues.map((issue) => issue.code), ['bareQuote']);
+  assert.equal(adjacentColumnOffset(trailing, 0, 1), undefined);
+});
+
+test('diagnoses malformed quotes at UTF-16 offsets and accepts legal quoting', () => {
+  for (const text of ['a,b\r\n1,"x,y"', '\uFEFF"a""b",c\r1,2\n', 'a,"line\r\nb",']) {
+    assert.deepEqual(validateCsv(parseCsv(text), true), []);
+  }
+  const cases = [
+    { text: 'a,b\n1,"x', code: 'unclosedQuote', offset: 7 },
+    { text: 'a,b\n1,"x"z', code: 'afterQuote', offset: 9 },
+    { text: 'a,b\n1,foo"bar', code: 'bareQuote', offset: 9 },
+    { text: '😀,"x"z', code: 'afterQuote', offset: 6 }
+  ];
+  for (const { text, code, offset } of cases) {
+    const issue = validateCsv(parseCsv(text), true).find((item) => item.code === code);
+    assert.equal(issue?.severity, 'error');
+    assert.deepEqual([issue?.start, issue?.end], [offset, offset + 1]);
+  }
+});
+
+test('compares logical record widths using header or first nonblank record', () => {
+  const csv = parseCsv('a,b\n1\n2,\n');
+  assert.deepEqual(validateCsv(csv, true).map((issue) => issue.code), ['columnCount']);
+  assert.deepEqual([validateCsv(csv, true)[0].expected, validateCsv(csv, true)[0].actual], [2, 1]);
+  const noHeader = parseCsv('\n""\nvalue,extra');
+  assert.deepEqual(validateCsv(noHeader, false).map((issue) => issue.code),
+    ['columnCount']);
+  assert.equal(validateCsv(noHeader, false)[0].start, noHeader.text.indexOf('value'));
+  assert.deepEqual(validateCsv(parseCsv(''), true), []);
+  assert.deepEqual(validateCsv(parseCsv('a,b\r\n1,2\r\n'), true), []);
+  assert.equal(validateCsv(parseCsv('a\n\n'), true).length, 0);
+});
+
+test('caps diagnostics and provides a final text explanation', () => {
+  const issues = validateCsv(parseCsv('a,b\n1\n2\n3\n4'), true, 2);
+  assert.deepEqual(issues.map((issue) => issue.code), ['columnCount', 'columnCount', 'moreProblems']);
+  const mixed = validateCsv(parseCsv('a,b\n1\n"x"z,ok\n2'), true, 2);
+  assert.deepEqual(mixed.map((issue) => issue.code), ['columnCount', 'afterQuote', 'moreProblems']);
+  assert.equal(parseCsv('x"'.repeat(300)).syntaxIssues.length, 201);
 });

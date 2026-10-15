@@ -9,5 +9,6 @@
   "configuration.columnFocus": "Focus the current cell or its column with visible marks. Off removes the marks.",
   "configuration.statusBar": "Show the current logical CSV row, column, and header in the status bar.",
   "configuration.columnSymbols": "Show a symbol beside the current column number. Symbols repeat every eight columns.",
-  "configuration.accessibilityPreset": "Choose the extension display preset. Explicit focus, status bar, and symbol settings take priority."
+  "configuration.accessibilityPreset": "Choose the extension display preset. Explicit focus, status bar, and symbol settings take priority.",
+  "configuration.validationEnabled": "Show read-only CSV syntax errors and column-count warnings in Problems."
 }

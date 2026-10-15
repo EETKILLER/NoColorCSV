@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import {
-  adjacentColumnOffset, adjacentRowOffset, CsvCellContext, CsvDocument, getCellContext
+  adjacentColumnOffset, adjacentRowOffset, CsvCellContext, CsvDocument, CsvIssue, getCellContext,
+  hasMalformedNavigationTarget, isReliablePosition, validateCsv
 } from './csv';
 import { CsvSnapshotCache, getFocusState, OffsetRange } from './focus';
 import {
@@ -64,7 +65,18 @@ function toRange(document: vscode.TextDocument, range: OffsetRange): vscode.Rang
   return new vscode.Range(document.positionAt(range.start), document.positionAt(range.end));
 }
 
+function issueMessage(issue: CsvIssue): string {
+  switch (issue.code) {
+    case 'unclosedQuote': return vscode.l10n.t('Unclosed quoted field.');
+    case 'afterQuote': return vscode.l10n.t('Unexpected character after a closing quote.');
+    case 'bareQuote': return vscode.l10n.t('Double quote inside an unquoted field.');
+    case 'columnCount': return vscode.l10n.t('Expected {0} columns, found {1}.', issue.expected!, issue.actual!);
+    case 'moreProblems': return vscode.l10n.t('More CSV problems were omitted.');
+  }
+}
+
 export function activate(context: vscode.ExtensionContext): void {
+  const diagnostics = vscode.languages.createDiagnosticCollection('NoColorCSV');
   const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   statusBar.name = vscode.l10n.t('NoColorCSV current cell');
   statusBar.command = 'nocolorcsv.showCurrentColumn';
@@ -103,6 +115,44 @@ export function activate(context: vscode.ExtensionContext): void {
     strongEmptyCurrentDecoration, strongEmptyColumnDecoration];
   const decorations = [...normalDecorations, ...strongDecorations];
   let decoratedEditor: vscode.TextEditor | undefined;
+  let diagnosticTimer: ReturnType<typeof setTimeout> | undefined;
+  let diagnosticDocument: vscode.TextDocument | undefined;
+  let lastNavigationNotice = '';
+  const refreshDiagnostics = (document: vscode.TextDocument | undefined): void => {
+    if (diagnosticTimer !== undefined) {
+      clearTimeout(diagnosticTimer);
+      diagnosticTimer = undefined;
+    }
+    diagnostics.clear();
+    diagnosticDocument = document && /\.csv$/i.test(document.uri.path) ? document : undefined;
+    if (!diagnosticDocument || !vscode.workspace.getConfiguration('nocolorcsv', diagnosticDocument.uri)
+      .get<boolean>('validation.enabled', true)) {
+      return;
+    }
+    const target = diagnosticDocument;
+    const version = target.version;
+    diagnosticTimer = setTimeout(() => {
+      diagnosticTimer = undefined;
+      if (diagnosticDocument !== target || target.version !== version ||
+        vscode.window.activeTextEditor?.document !== target) {
+        return;
+      }
+      const hasHeader = vscode.workspace.getConfiguration('nocolorcsv', target.uri)
+        .get<boolean>('hasHeader', true);
+      const issues = validateCsv(parsedCsv(target), hasHeader);
+      if (target.version !== version) {
+        return;
+      }
+      diagnostics.set(target.uri, issues.map((issue) => {
+        const severity = issue.severity === 'error' ? vscode.DiagnosticSeverity.Error
+          : issue.severity === 'warning' ? vscode.DiagnosticSeverity.Warning
+            : vscode.DiagnosticSeverity.Information;
+        const diagnostic = new vscode.Diagnostic(toRange(target, issue), issueMessage(issue), severity);
+        diagnostic.source = 'NoColorCSV';
+        return diagnostic;
+      }));
+    }, 150);
+  };
 
   const clearDecorations = (editor: vscode.TextEditor | undefined): void => {
     if (editor) {
@@ -242,12 +292,22 @@ export function activate(context: vscode.ExtensionContext): void {
       }
       const csv = parsedCsv(editor.document);
       const offset = editor.document.offsetAt(editor.selection.active);
+      if (!isReliablePosition(csv, offset)) {
+        const notice = vscode.l10n.t('Cannot navigate from a malformed CSV field.');
+        if (lastNavigationNotice !== notice) {
+          void vscode.window.showInformationMessage(notice);
+          lastNavigationNotice = notice;
+        }
+        return;
+      }
       const target = kind === 'column'
         ? adjacentColumnOffset(csv, offset, direction)
         : adjacentRowOffset(csv, offset, direction);
       if (target === undefined) {
         let message: string;
-        if (kind === 'column') {
+        if (hasMalformedNavigationTarget(csv, offset, kind, direction)) {
+          message = vscode.l10n.t('Cannot navigate to a malformed CSV field.');
+        } else if (kind === 'column') {
           message = direction < 0
             ? vscode.l10n.t('Already at the first column.')
             : vscode.l10n.t('Already at the last column.');
@@ -256,12 +316,17 @@ export function activate(context: vscode.ExtensionContext): void {
             ? vscode.l10n.t('No earlier row contains this column.')
             : vscode.l10n.t('No later row contains this column.');
         }
-        void vscode.window.showInformationMessage(message);
+        if (lastNavigationNotice !== message) {
+          void vscode.window.showInformationMessage(message);
+          lastNavigationNotice = message;
+        }
         return;
       }
 
+      lastNavigationNotice = '';
+
       const position = editor.document.positionAt(target);
-      editor.selection = new vscode.Selection(position, position);
+      editor.selections = [new vscode.Selection(position, position)];
       editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenterIfOutsideViewport);
       updateDisplay(editor);
     };
@@ -273,15 +338,22 @@ export function activate(context: vscode.ExtensionContext): void {
           clearTimeout(pendingUpdate);
         }
         clearDecorations(decoratedEditor);
+        if (diagnosticTimer !== undefined) {
+          clearTimeout(diagnosticTimer);
+        }
       }
     },
-    statusBar, ...decorations,
+    statusBar, diagnostics, ...decorations,
     showColumn,
     vscode.commands.registerTextEditorCommand('nocolorcsv.nextColumn', move('column', 1)),
     vscode.commands.registerTextEditorCommand('nocolorcsv.previousColumn', move('column', -1)),
     vscode.commands.registerTextEditorCommand('nocolorcsv.nextRow', move('row', 1)),
     vscode.commands.registerTextEditorCommand('nocolorcsv.previousRow', move('row', -1)),
-    vscode.window.onDidChangeActiveTextEditor((editor) => updateDisplay(editor)),
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      updateDisplay(editor);
+      refreshDiagnostics(editor?.document);
+      lastNavigationNotice = '';
+    }),
     vscode.window.onDidChangeTextEditorSelection((event) => {
       if (event.textEditor === vscode.window.activeTextEditor) {
         scheduleUpdate(event.textEditor);
@@ -295,10 +367,15 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.workspace.onDidChangeTextDocument((event) => {
       if (event.document === vscode.window.activeTextEditor?.document) {
         scheduleUpdate(vscode.window.activeTextEditor);
+        refreshDiagnostics(event.document);
       }
     }),
     vscode.workspace.onDidCloseTextDocument((document) => {
       parsedDocuments.delete(document);
+      diagnostics.delete(document.uri);
+      if (diagnosticDocument === document) {
+        refreshDiagnostics(undefined);
+      }
       if (decoratedEditor?.document === document) {
         clearDecorations(decoratedEditor);
         decoratedEditor = undefined;
@@ -308,11 +385,13 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('nocolorcsv')) {
         updateDisplay(vscode.window.activeTextEditor);
+        refreshDiagnostics(vscode.window.activeTextEditor?.document);
       }
     })
   );
 
   updateDisplay(vscode.window.activeTextEditor);
+  refreshDiagnostics(vscode.window.activeTextEditor?.document);
 }
 
 export function deactivate(): void {}
