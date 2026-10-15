@@ -41,19 +41,47 @@ This benchmark does not include the 75 ms editor debounce, Webview DOM work or V
 extension host memory. The preview's initial parse is measured separately from its
 first page conversion; add both to estimate Node processing, not user visible latency.
 
-## Remaining release checks
+## Measurements outside this report
 
-- Measure 30 extension host iterations for cursor to status, four navigation directions,
-  preview open/scroll/close, idle and peak memory, plus non-CSV idle CPU. Record VS Code
-  version, OS, process memory and p95. Repeat on the same machine at v0.5 and candidate.
-- Test a 10 MB document for sustained responsiveness in VS Code. Validate focus,
-  diagnostics and preview against source bytes and dirty state before and after.
-- Complete Windows Narrator or NVDA and macOS VoiceOver passes. Check keyboard access,
-  light/dark/high contrast, 200% zoom, long values, narrow windows and symbol fallback.
-  Record any blocking defects and their fixes.
-- Keep `package.json` at 0.5.0 until all release gates pass. Then update version, lockfile,
-  five READMEs, changelog, package manifest and release notes; verify the VSIX, CI,
-  SHA-256 and source commit before tagging and publishing.
+The Windows host run below measures status updates, four navigation directions, preview
+opening and closing, a process working-set snapshot, and source-byte stability. It does
+not include a same-host v0.5 UI run, peak heap profiling, non-CSV idle CPU, or spoken
+output from Windows Narrator/NVDA. macOS and Linux testing is outside the requested
+1.0 release scope. These gaps are stated in the release notes rather than treated as
+passed measurements.
 
-The local Node benchmark passes the 1.5 s cold parse gate and shows no material timing
-regression in the operations it measures. The v1.0 release criteria remain open.
+## Windows VS Code 1.142 host check
+
+On the same Windows machine, a development host opened the 10 MB / 100,001-record fixture.
+The first preview screen after opening the editor appeared in 244 ms; the status bar may
+already have populated the parse cache. Its DOM held 50 rows.
+Page Down showed page 2 of 2,001, still with 50 DOM rows. The source SHA-256 was unchanged.
+The host also showed the unsaved-content notice after an edit, removed it after Undo, and
+replaced `name / city / note` with generated `Column 1 / 2 / 3` labels when `hasHeader` was
+turned off. The on-disk source remained unchanged.
+
+With five warmups and 30 timed repetitions of each operation, CDP-driven host measurements
+gave the following median / p95 in milliseconds. They include automation round trips and
+the editor update path:
+
+| Operation | Median | p95 |
+| --- | ---: | ---: |
+| Next column | 22.2 | 38.5 |
+| Previous column | 20.6 | 30.8 |
+| Next row | 18.8 | 26.7 |
+| Previous row | 22.2 | 37.8 |
+| Cursor to status (75 ms debounce included) | 105.5 | 111.3 |
+| Open preview from cached parse | 172.9 | 262.3 |
+
+The isolated extension host's working set was approximately 164 MiB with a small CSV and
+251 MiB after the 10 MB file and 35 preview open/close cycles, a difference of about 87 MiB.
+This is a process snapshot, not peak or retained heap profiling. The 10 MB source stayed
+open, so its parsed cache remained live. No sustained unresponsive period was observed.
+These checks cover Windows UI behavior and measured paths; they do not constitute a Windows
+Narrator/NVDA speech test. macOS and Linux were outside the requested release scope.
+
+The Node benchmark passes the 1.5 s cold parse gate and shows no material timing
+regression in the operations it measures. Windows host measurements meet the initial
+status, navigation, preview and observed resident-memory targets. Screen reader speech,
+peak memory, idle CPU, and a same-host v0.5 UI benchmark were not measured; these limits
+are disclosed in the release notes.
