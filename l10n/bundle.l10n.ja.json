@@ -16,5 +16,9 @@
   "Already at the first column.": "この行の先頭列です。",
   "Already at the last column.": "この行の最終列です。",
   "No earlier row contains this column.": "前にこの列を含む行はありません。",
-  "No later row contains this column.": "後にこの列を含む行はありません。"
+  "No later row contains this column.": "後にこの列を含む行はありません。",
+  "Column {0}: symbol {1}": "{0} 列目：記号 {1}",
+  "Column {0}: symbol {1} (repeats every {2} columns)": "{0} 列目：記号 {1}（{2} 列ごとに繰り返し）",
+  "Focus marks: current cell and visible column": "フォーカス表示：現在のセルと表示中の同じ列",
+  "Focus marks: current cell": "フォーカス表示：現在のセル"
 }

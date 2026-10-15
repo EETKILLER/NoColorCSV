@@ -16,5 +16,9 @@
   "Already at the first column.": "현재 행의 첫 번째 열입니다.",
   "Already at the last column.": "현재 행의 마지막 열입니다.",
   "No earlier row contains this column.": "앞에 이 열이 있는 행이 없습니다.",
-  "No later row contains this column.": "뒤에 이 열이 있는 행이 없습니다."
+  "No later row contains this column.": "뒤에 이 열이 있는 행이 없습니다.",
+  "Column {0}: symbol {1}": "{0}열: 기호 {1}",
+  "Column {0}: symbol {1} (repeats every {2} columns)": "{0}열: 기호 {1}({2}열마다 반복)",
+  "Focus marks: current cell and visible column": "포커스 표시: 현재 셀과 보이는 같은 열",
+  "Focus marks: current cell": "포커스 표시: 현재 셀"
 }

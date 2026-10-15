@@ -1,5 +1,5 @@
 {
-  "extension.description": "面向色觉障碍人士的 CSV 阅读扩展，提供列编号、表头和键盘导航。",
+  "extension.description": "面向色觉障碍人士的 CSV 阅读扩展，提供列编号、可选符号、表头和键盘导航。",
   "command.showCurrentColumn": "显示当前列信息",
   "command.nextColumn": "转到下一列",
   "command.previousColumn": "转到上一列",
@@ -7,5 +7,7 @@
   "command.previousRow": "转到本列上一行",
   "configuration.hasHeader": "将 CSV 第一条记录用作列标题。",
   "configuration.columnFocus": "用可见标记聚焦当前单元格或整列；关闭后不显示标记。",
-  "configuration.statusBar": "在状态栏显示当前 CSV 逻辑行、列和表头。"
+  "configuration.statusBar": "在状态栏显示当前 CSV 逻辑行、列和表头。",
+  "configuration.columnSymbols": "在当前列编号旁显示符号；符号每八列循环。",
+  "configuration.accessibilityPreset": "选择扩展显示预设。显式设置的焦点、状态栏和符号选项优先。"
 }

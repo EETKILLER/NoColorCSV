@@ -16,5 +16,9 @@
   "Already at the first column.": "Ya estás en la primera columna de esta fila.",
   "Already at the last column.": "Ya estás en la última columna de esta fila.",
   "No earlier row contains this column.": "No hay filas anteriores que contengan esta columna.",
-  "No later row contains this column.": "No hay filas posteriores que contengan esta columna."
+  "No later row contains this column.": "No hay filas posteriores que contengan esta columna.",
+  "Column {0}: symbol {1}": "Columna {0}: símbolo {1}",
+  "Column {0}: symbol {1} (repeats every {2} columns)": "Columna {0}: símbolo {1} (se repite cada {2} columnas)",
+  "Focus marks: current cell and visible column": "Marcas de foco: celda actual y columna visible",
+  "Focus marks: current cell": "Marcas de foco: celda actual"
 }

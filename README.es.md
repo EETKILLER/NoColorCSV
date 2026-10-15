@@ -51,6 +51,10 @@ La opción `nocolorcsv.hasHeader` utiliza el primer registro del CSV como encabe
 
 `nocolorcsv.columnFocus` usa `column` de forma predeterminada. Con `cell` solo marca la celda actual y con `off` elimina las marcas. `nocolorcsv.statusBar` usa `true` de forma predeterminada; desactívala para ocultar el elemento de la barra. El comando **Mostrar columna actual** y la navegación por teclado siguen funcionando con cualquiera de las dos opciones de visualización desactivada. Un archivo vacío conserva una posición para el cursor; un salto de línea final no añade una fila lógica.
 
+`nocolorcsv.columnSymbols` está desactivado por defecto. Al activarlo, el borde de la celda actual y la barra de estado muestran el número de columna, empezando por 1, junto a un símbolo repetido. Los ocho símbolos se repiten: las columnas 1 y 9 comparten forma, pero conservan números distintos. Las demás celdas de la columna mantienen marcas compactas. Si la fuente no muestra un símbolo, usa el número de columna en la barra o en **Mostrar columna actual**.
+
+`nocolorcsv.accessibilityPreset` ofrece `standard` (aspecto de v0.2), `highContrast` (bordes de foco más fuertes, símbolos e indicación textual) y `screenReader` (sin marcas ni símbolos por defecto; fila, columna, encabezado y valor siguen disponibles en texto). Solo cambia la presentación de esta extensión. Los valores explícitos de `columnFocus`, `statusBar` o `columnSymbols` tienen prioridad sobre el ajuste predefinido. Para recuperar sus valores por defecto, elimina el ajuste individual de la configuración de usuario o del área de trabajo.
+
 El analizador admite campos entre comillas, comas y saltos de línea dentro de esos campos, comillas dobles escapadas y BOM UTF-8. El separador es la coma ASCII `,`; la coma de ancho completo `，` se trata como texto.
 
 ## Desarrollo
@@ -63,6 +67,8 @@ npm test
 ```
 
 Abre el repositorio en VS Code y pulsa **F5** para iniciar el entorno de desarrollo de extensiones. La configuración compila TypeScript antes de iniciar. Abre `examples/sample.csv`, mueve el cursor por una coma entre comillas y entre filas, y comprueba las marcas y la fila lógica. Cambia `nocolorcsv.columnFocus` entre `column`, `cell` y `off`; desactiva `nocolorcsv.statusBar` y ejecuta **Mostrar columna actual**. Comprueba también una celda vacía, un campo entre comillas con varias líneas, el desplazamiento y el cambio a un archivo que no sea CSV. Prueba un zoom alto y un tema de alto contraste. Estas acciones no deben modificar ni guardar el CSV.
+
+Para verificar v0.3, crea un CSV temporal con al menos 20 columnas y compara las columnas 1, 9 y 17: el símbolo se repite, pero el número las distingue. Cambia los símbolos y los tres ajustes predefinidos; desactiva explícitamente `columnSymbols` con `highContrast`. Comprueba un editor estrecho, ajuste de línea, zoom al 200 %, temas claro/oscuro/de alto contraste y la lectura de la barra y **Mostrar columna actual** con un lector de pantalla. Comprueba la navegación por teclado en Windows, macOS y Linux cuando estén disponibles. Al cerrar el CSV o cambiar a otra pestaña deben desaparecer las marcas. Compara el contenido del archivo antes y después: la extensión no debe editarlo.
 
 Para crear un VSIX instalable:
 

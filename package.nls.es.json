@@ -1,5 +1,5 @@
 {
-  "extension.description": "Lectura accesible de CSV para personas con diferencias en la percepción del color, con números de columna, encabezados y navegación por teclado.",
+  "extension.description": "Lectura accesible de CSV para personas con diferencias en la percepción del color, con números de columna, símbolos opcionales, encabezados y navegación por teclado.",
   "command.showCurrentColumn": "Mostrar columna actual",
   "command.nextColumn": "Ir a la columna siguiente",
   "command.previousColumn": "Ir a la columna anterior",
@@ -7,5 +7,7 @@
   "command.previousRow": "Ir a la fila anterior de la misma columna",
   "configuration.hasHeader": "Usar el primer registro CSV como encabezados de columna.",
   "configuration.columnFocus": "Marcar la celda actual o su columna. Off desactiva las marcas.",
-  "configuration.statusBar": "Mostrar la fila lógica, columna y encabezado actuales en la barra de estado."
+  "configuration.statusBar": "Mostrar la fila lógica, columna y encabezado actuales en la barra de estado.",
+  "configuration.columnSymbols": "Muestra un símbolo junto al número de la columna actual. Los símbolos se repiten cada ocho columnas.",
+  "configuration.accessibilityPreset": "Elige el ajuste de visualización de la extensión. Los ajustes explícitos de foco, barra de estado y símbolos tienen prioridad."
 }

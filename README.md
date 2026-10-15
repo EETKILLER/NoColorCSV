@@ -51,6 +51,10 @@ The `nocolorcsv.hasHeader` setting treats the first CSV record as headers by def
 
 `nocolorcsv.columnFocus` defaults to `column`; set it to `cell` to mark only the current cell or `off` to remove all marks. `nocolorcsv.statusBar` defaults to `true`; turn it off to hide the status item. The **Show Current Column** command and keyboard navigation still work with either display setting off. An empty file has one cursor location; a final line ending does not add a logical row.
 
+`nocolorcsv.columnSymbols` is off by default. When enabled, the current cell edge and status bar show its one-based column number with a repeating symbol. Eight symbols repeat: columns 1 and 9 share a shape but keep distinct numbers. The same-column marks stay compact. If a font cannot show a symbol, use the text column number in the status bar or **Show Current Column**.
+
+`nocolorcsv.accessibilityPreset` offers `standard` (v0.2 appearance), `highContrast` (stronger focus borders, symbols, and a text focus hint), and `screenReader` (no focus marks or symbols by default; row, column, header, and value remain in text). It changes only this extension. Explicit `columnFocus`, `statusBar`, or `columnSymbols` settings override the preset defaults. To restore a preset default, remove that individual setting from your user or workspace settings.
+
 Parsing supports quoted fields, commas and line breaks inside quotes, escaped double quotes, and UTF-8 BOM. The delimiter is the ASCII comma `,`; a full width comma `，` is treated as text.
 
 ## Develop
@@ -63,6 +67,8 @@ npm test
 ```
 
 Open the repository in VS Code and press **F5** to launch the Extension Development Host. The debug configuration compiles TypeScript first. Open `examples/sample.csv`, move the cursor through a quoted comma and across rows, and check the marks and logical row in the status bar. Change `nocolorcsv.columnFocus` among `column`, `cell`, and `off`; turn `nocolorcsv.statusBar` off and use **Show Current Column**. Also try an empty cell, a multiline quoted cell, scrolling, and switching to a non-CSV file. Check at high zoom and in a high contrast theme. These actions should not change or save the CSV file.
+
+For v0.3 validation, create a temporary CSV row with at least 20 columns and compare columns 1, 9, and 17; each should retain its number while the symbol repeats. Toggle symbols and all three presets in Settings, including an explicit `columnSymbols: false` with `highContrast`. Check a narrow editor, word wrap, 200% zoom, light/dark/high contrast themes, and screen reader reading of the status and **Show Current Column**. Check keyboard navigation on Windows, macOS, and Linux where available. Closing the CSV or switching to a non-CSV tab should clear marks. Compare the file before and after; the extension does not edit it.
 
 Build an installable VSIX with:
 
