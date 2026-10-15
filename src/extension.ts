@@ -3,8 +3,11 @@ import {
   adjacentColumnOffset, adjacentRowOffset, CsvCellContext, CsvDocument, getCellContext
 } from './csv';
 import { CsvSnapshotCache, getFocusState, OffsetRange } from './focus';
+import {
+  AccessibilityPreset, columnSymbol, FocusMode, hasExplicitValue, PresentationSettings,
+  resolvePresentationSettings, symbolCycleLength
+} from './presentation';
 
-type FocusMode = 'off' | 'cell' | 'column';
 const parsedDocuments = new CsvSnapshotCache<vscode.TextDocument>();
 
 function isCsvEditor(editor: vscode.TextEditor | undefined): editor is vscode.TextEditor {
@@ -15,12 +18,18 @@ function parsedCsv(document: vscode.TextDocument): CsvDocument {
   return parsedDocuments.get(document, document.version, () => document.getText());
 }
 
-function settings(): { hasHeader: boolean; focus: FocusMode; statusBar: boolean } {
-  const config = vscode.workspace.getConfiguration('nocolorcsv');
+function settings(editor: vscode.TextEditor): PresentationSettings & { hasHeader: boolean } {
+  const config = vscode.workspace.getConfiguration('nocolorcsv', editor.document.uri);
+  const preset = config.get<AccessibilityPreset>('accessibilityPreset', 'standard');
   return {
-    hasHeader: config.get<boolean>('hasHeader', true),
-    focus: config.get<FocusMode>('columnFocus', 'column'),
-    statusBar: config.get<boolean>('statusBar', true)
+    ...resolvePresentationSettings(preset,
+      { value: config.get<FocusMode>('columnFocus', 'column'),
+        explicit: hasExplicitValue(config.inspect('columnFocus')) },
+      { value: config.get<boolean>('statusBar', true),
+        explicit: hasExplicitValue(config.inspect('statusBar')) },
+      { value: config.get<boolean>('columnSymbols', false),
+        explicit: hasExplicitValue(config.inspect('columnSymbols')) }),
+    hasHeader: config.get<boolean>('hasHeader', true)
   };
 }
 
@@ -75,7 +84,24 @@ export function activate(context: vscode.ExtensionContext): void {
   const emptyColumnDecoration = vscode.window.createTextEditorDecorationType({
     after: { contentText: '¦', color, margin: '0 0 0 1px' }
   });
-  const decorations = [currentDecoration, columnDecoration, emptyCurrentDecoration, emptyColumnDecoration];
+  const strongCurrentDecoration = vscode.window.createTextEditorDecorationType({
+    borderStyle: 'solid', borderWidth: '0 0 3px 2px', borderColor: color,
+    before: { contentText: '▌', color, margin: '0 2px 0 0' }
+  });
+  const strongColumnDecoration = vscode.window.createTextEditorDecorationType({
+    borderStyle: 'dashed', borderWidth: '0 0 2px 1px', borderColor: color,
+    before: { contentText: '¦', color, margin: '0 2px 0 0' }
+  });
+  const strongEmptyCurrentDecoration = vscode.window.createTextEditorDecorationType({
+    after: { contentText: '▌', color, margin: '0 0 0 2px' }
+  });
+  const strongEmptyColumnDecoration = vscode.window.createTextEditorDecorationType({
+    after: { contentText: '¦', color, margin: '0 0 0 2px' }
+  });
+  const normalDecorations = [currentDecoration, columnDecoration, emptyCurrentDecoration, emptyColumnDecoration];
+  const strongDecorations = [strongCurrentDecoration, strongColumnDecoration,
+    strongEmptyCurrentDecoration, strongEmptyColumnDecoration];
+  const decorations = [...normalDecorations, ...strongDecorations];
   let decoratedEditor: vscode.TextEditor | undefined;
 
   const clearDecorations = (editor: vscode.TextEditor | undefined): void => {
@@ -91,11 +117,11 @@ export function activate(context: vscode.ExtensionContext): void {
       clearDecorations(decoratedEditor);
       decoratedEditor = undefined;
     }
-    const config = settings();
     if (!isCsvEditor(editor)) {
       statusBar.hide();
       return;
     }
+    const config = settings(editor);
     if (!config.statusBar && config.focus === 'off') {
       statusBar.hide();
       clearDecorations(editor);
@@ -119,13 +145,23 @@ export function activate(context: vscode.ExtensionContext): void {
       const empty = cell.value === '' && !emptyFile ? ` · ${vscode.l10n.t('Empty cell')}` : '';
       const fullwidthHint = hasFullwidthCommaHint(editor, cell);
       const hint = fullwidthHint ? ` · ${vscode.l10n.t('Full-width comma')}` : '';
+      const symbol = config.symbols ? ` · ${vscode.l10n.t('Column {0}: symbol {1}',
+        cell.columnIndex + 1, columnSymbol(cell.columnIndex))}` : '';
       statusBar.text = emptyFile ? vscode.l10n.t('CSV: empty file')
         : `${vscode.l10n.t('CSV: row {0}, column {1} of {2}',
-          cell.rowIndex + 1, cell.columnIndex + 1, cell.columnCount)}${header}${empty}${hint}`;
-      statusBar.tooltip = emptyFile ? vscode.l10n.t('Empty CSV file.')
+          cell.rowIndex + 1, cell.columnIndex + 1, cell.columnCount)}${header}${empty}${hint}${symbol}`;
+      const detail = emptyFile ? vscode.l10n.t('Empty CSV file.')
         : fullwidthHint
           ? `${cellDescription(cell, config.hasHeader)} · ${vscode.l10n.t("Full-width commas are text; use ',' to separate CSV columns.")}`
           : cellDescription(cell, config.hasHeader);
+      const symbolHint = !emptyFile && config.symbols
+        ? ` · ${vscode.l10n.t('Column {0}: symbol {1} (repeats every {2} columns)',
+          cell.columnIndex + 1, columnSymbol(cell.columnIndex), symbolCycleLength())}` : '';
+      const focusHint = config.highContrast && config.focus !== 'off'
+        ? ` · ${config.focus === 'column'
+          ? vscode.l10n.t('Focus marks: current cell and visible column')
+          : vscode.l10n.t('Focus marks: current cell')}` : '';
+      statusBar.tooltip = `${detail}${symbolHint}${focusHint}`;
       statusBar.show();
     } else {
       statusBar.hide();
@@ -133,14 +169,30 @@ export function activate(context: vscode.ExtensionContext): void {
 
     const current = config.focus === 'off' ? [] : focus.current;
     const column = config.focus === 'column' ? focus.column : [];
-    const setRanges = (decoration: vscode.TextEditorDecorationType, ranges: readonly OffsetRange[], empty: boolean): void => {
-      editor.setDecorations(decoration, ranges.filter((range) => (range.start === range.end) === empty)
-        .map((range) => toRange(editor.document, range)));
+    const setRanges = (decoration: vscode.TextEditorDecorationType, ranges: readonly OffsetRange[],
+      empty: boolean, currentCell = false): void => {
+      const filtered = ranges.filter((range) => (range.start === range.end) === empty);
+      if (currentCell && config.symbols) {
+        const label = `${cell.columnIndex + 1} ${columnSymbol(cell.columnIndex)}`;
+        editor.setDecorations(decoration, filtered.map((range): vscode.DecorationOptions => ({
+          range: toRange(editor.document, range),
+          renderOptions: empty
+            ? { after: { contentText: label } }
+            : { before: { contentText: label } }
+        })));
+      } else {
+        editor.setDecorations(decoration, filtered.map((range) => toRange(editor.document, range)));
+      }
     };
-    setRanges(currentDecoration, current, false);
-    setRanges(columnDecoration, column, false);
-    setRanges(emptyCurrentDecoration, current, true);
-    setRanges(emptyColumnDecoration, column, true);
+    const active = config.highContrast ? strongDecorations : normalDecorations;
+    const inactive = config.highContrast ? normalDecorations : strongDecorations;
+    for (const decoration of inactive) {
+      editor.setDecorations(decoration, []);
+    }
+    setRanges(active[0], current, false, true);
+    setRanges(active[1], column, false);
+    setRanges(active[2], current, true, true);
+    setRanges(active[3], column, true);
     decoratedEditor = config.focus === 'off' ? undefined : editor;
   };
 
@@ -171,7 +223,7 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
       const csv = parsedCsv(editor.document);
-      const config = settings();
+      const config = settings(editor);
       const cell = getCellContext(csv, editor.document.offsetAt(editor.selection.active), config.hasHeader);
       const hint = hasFullwidthCommaHint(editor, cell)
         ? ` · ${vscode.l10n.t("Full-width commas are text; use ',' to separate CSV columns.")}`

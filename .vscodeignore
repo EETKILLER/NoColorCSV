@@ -6,6 +6,7 @@ AGENTS.md
 src/**
 examples/**
 docs/development/**
+docs/v0.3-handoff.md
 node_modules/**
 tsconfig.json
 out/test/**

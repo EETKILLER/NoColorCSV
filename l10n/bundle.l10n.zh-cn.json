@@ -16,5 +16,9 @@
   "Already at the first column.": "已到本行第一列。",
   "Already at the last column.": "已到本行最后一列。",
   "No earlier row contains this column.": "前面没有包含此列的行。",
-  "No later row contains this column.": "后面没有包含此列的行。"
+  "No later row contains this column.": "后面没有包含此列的行。",
+  "Column {0}: symbol {1}": "第 {0} 列：符号 {1}",
+  "Column {0}: symbol {1} (repeats every {2} columns)": "第 {0} 列：符号 {1}（每 {2} 列循环）",
+  "Focus marks: current cell and visible column": "焦点标记：当前单元格及可见的同列单元格",
+  "Focus marks: current cell": "焦点标记：当前单元格"
 }

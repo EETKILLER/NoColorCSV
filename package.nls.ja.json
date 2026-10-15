@@ -1,5 +1,5 @@
 {
-  "extension.description": "色覚特性のある方のための CSV 閲覧拡張機能。列番号、見出し、キーボード操作に対応。",
+  "extension.description": "色覚特性のある方のための CSV 閲覧拡張機能。列番号、任意の記号、見出し、キーボード操作に対応。",
   "command.showCurrentColumn": "現在の列情報を表示",
   "command.nextColumn": "次の列に移動",
   "command.previousColumn": "前の列に移動",
@@ -7,5 +7,7 @@
   "command.previousRow": "同じ列の前の行に移動",
   "configuration.hasHeader": "最初の CSV レコードを列の見出しとして使用します。",
   "configuration.columnFocus": "現在のセルまたは列を目に見える印で示します。off では印を表示しません。",
-  "configuration.statusBar": "現在の CSV 論理行、列、見出しをステータスバーに表示します。"
+  "configuration.statusBar": "現在の CSV 論理行、列、見出しをステータスバーに表示します。",
+  "configuration.columnSymbols": "現在の列番号の横に記号を表示します。記号は 8 列ごとに繰り返します。",
+  "configuration.accessibilityPreset": "拡張機能の表示プリセットを選びます。明示的に設定したフォーカス、ステータスバー、記号の設定が優先されます。"
 }
