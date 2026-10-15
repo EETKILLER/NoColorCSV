@@ -10,5 +10,6 @@
   "configuration.statusBar": "在状态栏显示当前 CSV 逻辑行、列和表头。",
   "configuration.columnSymbols": "在当前列编号旁显示符号；符号每八列循环。",
   "configuration.accessibilityPreset": "选择扩展显示预设。显式设置的焦点、状态栏和符号选项优先。",
-  "configuration.validationEnabled": "在“问题”中显示只读 CSV 语法错误和列数警告。"
+  "configuration.validationEnabled": "在“问题”中显示只读 CSV 语法错误和列数警告。",
+  "command.openPreview": "打开只读表格预览"
 }

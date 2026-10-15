@@ -10,5 +10,6 @@
   "configuration.statusBar": "Mostrar la fila lógica, columna y encabezado actuales en la barra de estado.",
   "configuration.columnSymbols": "Muestra un símbolo junto al número de la columna actual. Los símbolos se repiten cada ocho columnas.",
   "configuration.accessibilityPreset": "Elige el ajuste de visualización de la extensión. Los ajustes explícitos de foco, barra de estado y símbolos tienen prioridad.",
-  "configuration.validationEnabled": "Muestra errores de sintaxis CSV y avisos de cantidad de columnas, sin editar el archivo, en Problemas."
+  "configuration.validationEnabled": "Muestra errores de sintaxis CSV y avisos de cantidad de columnas, sin editar el archivo, en Problemas.",
+  "command.openPreview": "Abrir vista previa de tabla de solo lectura"
 }

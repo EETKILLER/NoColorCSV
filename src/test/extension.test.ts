@@ -5,9 +5,10 @@ import { setTimeout as delay } from 'node:timers/promises';
 import type * as vscode from 'vscode';
 
 interface MockDocument {
-  readonly uri: { path: string };
+  readonly uri: { path: string; toString(): string };
   version: number;
   text: string;
+  isDirty: boolean;
   getText(): string;
   offsetAt(position: vscode.Position): number;
   positionAt(offset: number): vscode.Position;
@@ -26,7 +27,7 @@ interface MockEditor {
 
 function document(path: string, text: string): MockDocument {
   const result: MockDocument = {
-    uri: { path }, version: 1, text,
+    uri: { path, toString: () => path }, version: 1, text, isDirty: false,
     getText: () => result.text,
     offsetAt(position) {
       const lines = result.text.split(/\r\n|\r|\n/);
@@ -76,6 +77,8 @@ function harness(active: MockEditor) {
   const types: object[] = [];
   const messages: string[] = [];
   const diagnosticEntries = new Map<string, readonly vscode.Diagnostic[]>();
+  const panels: Array<{ title: string; messages: unknown[]; onMessage?: (message: unknown) => void;
+    dispose(): void; disposed: boolean; revealCount: number; webview: object }> = [];
   const explicit = new Set<string>();
   const config = new Proxy({ hasHeader: true, columnFocus: 'column', statusBar: true,
     columnSymbols: false, accessibilityPreset: 'standard', 'validation.enabled': true }, {
@@ -103,10 +106,34 @@ function harness(active: MockEditor) {
     Range: class { constructor(readonly start: vscode.Position, readonly end: vscode.Position) {} },
     Selection: class { active: vscode.Position; constructor(start: vscode.Position) { this.active = start; } },
     StatusBarAlignment: { Right: 1 }, TextEditorRevealType: { InCenterIfOutsideViewport: 1 },
+    ViewColumn: { Beside: 2 }, env: { language: 'en' },
+    Uri: { joinPath: (base: { path: string }, ...parts: string[]) => ({
+      path: [base.path, ...parts].join('/'), toString() { return this.path; }
+    }) },
     l10n: { t: (key: string, ...args: unknown[]) => key.replace(/\{(\d+)\}/g, (_, i: string) => String(args[Number(i)])) },
     window: {
       activeTextEditor: active,
       createStatusBarItem: () => status,
+      createWebviewPanel: (_type: string, title: string) => {
+        let onDispose: (() => void) | undefined;
+        const panel = {
+          title, messages: [] as unknown[], disposed: false, revealCount: 0,
+          webview: {
+            cspSource: 'test:', html: '', asWebviewUri: (uri: object) => uri,
+            postMessage: (message: unknown) => { panel.messages.push(message); return Promise.resolve(true); },
+            onDidReceiveMessage: (handler: (message: unknown) => void) => {
+              panel.onMessage = handler; return { dispose() { panel.onMessage = undefined; } };
+            }
+          },
+          onMessage: undefined as ((message: unknown) => void) | undefined,
+          onDidDispose: (handler: () => void) => { onDispose = handler; return { dispose() { onDispose = undefined; } }; },
+          reveal() { panel.revealCount += 1; },
+          dispose() { panel.disposed = true; onDispose?.(); }
+        };
+        panels.push(panel);
+        return panel;
+      },
+      showTextDocument: async (doc: MockDocument) => editor(doc, 0),
       createTextEditorDecorationType: (option: { borderStyle?: string; before?: { contentText: string }; after?: object }) => {
         options.push(option);
         const type = { dispose() {} };
@@ -132,9 +159,14 @@ function harness(active: MockEditor) {
       }),
       onDidChangeTextDocument: on('document'),
       onDidCloseTextDocument: on('close'),
+      onDidSaveTextDocument: on('save'),
+      onDidRenameFiles: on('rename'),
       onDidChangeConfiguration: on('configuration')
     },
-    commands: { registerTextEditorCommand: (id: string, callback: (editor: MockEditor) => void) => {
+    commands: { registerCommand: (id: string, callback: () => void) => {
+      commands.set(id, callback);
+      return { dispose() {} };
+    }, registerTextEditorCommand: (id: string, callback: (editor: MockEditor) => void) => {
       commands.set(id, callback);
       return { dispose() {} };
     } }
@@ -144,10 +176,11 @@ function harness(active: MockEditor) {
   loader._load = (...args) => args[0] === 'vscode' ? mock : originalLoad.apply(Module, args);
   try {
     delete require.cache[require.resolve('../extension')];
+    delete require.cache[require.resolve('../previewPanel')];
     const extension = require('../extension') as typeof import('../extension');
     const subscriptions: Array<{ dispose(): void }> = [];
-    extension.activate({ subscriptions } as vscode.ExtensionContext);
-    return { mock, status, handlers, commands, config, explicit, options, types, messages,
+    extension.activate({ subscriptions, extensionUri: { path: '/extension' } } as unknown as vscode.ExtensionContext);
+    return { mock, status, handlers, commands, config, explicit, options, types, messages, panels,
       diagnosticEntries,
       dispose: () => subscriptions.forEach((item) => item.dispose()) };
   } finally {
@@ -418,5 +451,79 @@ test('navigation collapses multiple cursors and explains malformed fields', () =
     opened.selection.active = doc.positionAt(text.indexOf('z'));
     host.commands.get('nocolorcsv.nextRow')?.(opened);
     assert.match(host.messages[host.messages.length - 1] ?? '', /from a malformed/);
+  } finally { host.dispose(); }
+});
+
+test('preview reuses a panel, follows unsaved versions, rejects stale jumps, and clears on close', async () => {
+  const doc = document('/sample.csv', 'name,note\nAda,"hello, world"');
+  const opened = editor(doc, 0);
+  const host = harness(opened);
+  try {
+    host.commands.get('nocolorcsv.openPreview')?.(opened);
+    assert.equal(host.panels.length, 1);
+    const panel = host.panels[0];
+    panel.onMessage?.({ type: 'ready' });
+    const first = panel.messages[panel.messages.length - 1] as { version: number; data: { rows: unknown[] }; dirty: boolean };
+    assert.equal(first.version, 1);
+    assert.equal(first.data.rows.length, 2);
+    assert.equal(first.dirty, false);
+    host.commands.get('nocolorcsv.openPreview')?.(opened);
+    assert.equal(host.panels.length, 1);
+    assert.equal(panel.revealCount, 1);
+    doc.text = 'name,note\nAda,"new, value"';
+    doc.version = 2;
+    doc.isDirty = true;
+    opened.visibleRanges = [{ start: doc.positionAt(0), end: doc.positionAt(doc.text.length) } as vscode.Range];
+    host.handlers.get('document')?.({ document: doc });
+    doc.text = 'name,note\nAda,"latest, value"';
+    doc.version = 3;
+    opened.visibleRanges = [{ start: doc.positionAt(0), end: doc.positionAt(doc.text.length) } as vscode.Range];
+    host.handlers.get('document')?.({ document: doc });
+    await delay(180);
+    const changed = panel.messages[panel.messages.length - 1] as { version: number; dirty: boolean;
+      data: { rows: Array<{ cells: Array<{ value: string }> }> } };
+    assert.equal(changed.version, 3);
+    assert.equal(changed.dirty, true);
+    assert.equal(changed.data.rows[1].cells[1].value, 'latest, value');
+    const before = panel.messages.length;
+    panel.onMessage?.({ type: 'page', version: 1, page: 0 });
+    panel.onMessage?.({ type: 'page', version: 3, page: -1 });
+    assert.equal(panel.messages.length, before);
+    doc.isDirty = false;
+    host.handlers.get('save')?.(doc);
+    await delay(180);
+    assert.equal((panel.messages[panel.messages.length - 1] as { dirty: boolean }).dirty, false);
+    host.handlers.get('close')?.(doc);
+    assert.equal((panel.messages[panel.messages.length - 1] as { type: string }).type, 'unavailable');
+    panel.dispose();
+    assert.equal(panel.onMessage, undefined);
+    assert.equal(doc.text, 'name,note\nAda,"latest, value"');
+  } finally { host.dispose(); }
+});
+
+test('preview keeps documents separate, refreshes headers, and replaces an unavailable panel', () => {
+  const first = document('/one.csv', 'a,b\n1,2');
+  const second = document('/two.csv', 'c,d\n3,4');
+  const host = harness(editor(first, 0));
+  try {
+    host.commands.get('nocolorcsv.openPreview')?.(host.mock.window.activeTextEditor);
+    host.mock.window.activeTextEditor = editor(second, 0);
+    host.commands.get('nocolorcsv.openPreview')?.(host.mock.window.activeTextEditor);
+    assert.equal(host.panels.length, 2);
+    host.panels[0].onMessage?.({ type: 'ready' });
+    host.panels[1].onMessage?.({ type: 'ready' });
+    host.config.hasHeader = false;
+    host.handlers.get('configuration')?.({ affectsConfiguration: () => true });
+    const updated = host.panels[0].messages[host.panels[0].messages.length - 1] as {
+      data: { generatedHeaders: boolean[] } };
+    assert.deepEqual(updated.data.generatedHeaders, [true, true]);
+    host.handlers.get('rename')?.({ files: [{ oldUri: first.uri }] });
+    assert.equal((host.panels[0].messages[host.panels[0].messages.length - 1] as { type: string }).type,
+      'unavailable');
+    host.mock.window.activeTextEditor = editor(first, 0);
+    host.commands.get('nocolorcsv.openPreview')?.(host.mock.window.activeTextEditor);
+    assert.equal(host.panels.length, 3);
+    assert.equal(host.panels[0].disposed, true);
+    assert.equal(host.panels[1].disposed, false);
   } finally { host.dispose(); }
 });

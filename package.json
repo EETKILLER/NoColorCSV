@@ -2,7 +2,7 @@
   "name": "nocolorcsv",
   "displayName": "NoColorCSV",
   "description": "%extension.description%",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "publisher": "EETKILLER",
   "repository": {
     "type": "git",
@@ -26,7 +26,8 @@
     "onCommand:nocolorcsv.nextColumn",
     "onCommand:nocolorcsv.previousColumn",
     "onCommand:nocolorcsv.nextRow",
-    "onCommand:nocolorcsv.previousRow"
+    "onCommand:nocolorcsv.previousRow",
+    "onCommand:nocolorcsv.openPreview"
   ],
   "main": "./out/extension.js",
   "l10n": "./l10n",
@@ -56,8 +57,21 @@
         "command": "nocolorcsv.previousRow",
         "category": "NoColorCSV",
         "title": "%command.previousRow%"
+      },
+      {
+        "command": "nocolorcsv.openPreview",
+        "category": "NoColorCSV",
+        "title": "%command.openPreview%"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "nocolorcsv.openPreview",
+          "when": "resourceExtname =~ /^[.]csv$/i"
+        }
+      ]
+    },
     "keybindings": [
       {
         "command": "nocolorcsv.nextColumn",
@@ -132,7 +146,7 @@
   },
   "scripts": {
     "compile": "tsc -p ./",
-    "test": "npm run compile && node --test out/test/column.test.js out/test/extension.test.js out/test/presentation.test.js",
+    "test": "npm run compile && node --test out/test/column.test.js out/test/extension.test.js out/test/presentation.test.js out/test/preview.test.js",
     "package": "npm run compile && vsce package --no-dependencies"
   },
   "devDependencies": {
