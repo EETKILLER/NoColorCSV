@@ -33,6 +33,8 @@ NoColorCSV does not change CSV content or add color to columns.
 
 Download the `.vsix` file from the [latest release](https://github.com/EETKILLER/NoColorCSV/releases/latest). In VS Code, open the **Extensions** view, select `…` → **Install from VSIX...**, and choose the downloaded file.
 
+Version 1.0.0 was functionally checked in VS Code 1.142 on Windows. Screen reader speech and the macOS/Linux interface have not been verified; see the [release notes](docs/release-1.0.0.md). The extension reads comma separated `.csv` files and does not edit them.
+
 ## Use
 
 Open a `.csv` file and move the cursor. The status bar shows the logical row, current column, number of columns in that row, and the header when available. It also labels empty cells and unavailable headers. The current non-empty cell has a solid underline and edge mark; visible non-empty cells in the same column have dashed underlines and a different edge mark. Empty cells show only the edge mark. Select the status bar item to see the current cell's text details, or run a command from the Command Palette.

@@ -25,24 +25,50 @@ export interface PreviewPage {
   readonly rows: readonly PreviewRow[];
 }
 
-export function previewPage(csv: CsvDocument, hasHeader: boolean, requestedPage: number): PreviewPage {
+interface PreviewMetadata {
+  readonly records: CsvDocument['records'];
+  readonly headers: readonly string[];
+  readonly generatedHeaders: readonly boolean[];
+  readonly baselineColumnCount: number | undefined;
+  readonly issues: readonly CsvIssue[];
+}
+
+const previewMetadata = new WeakMap<CsvDocument, Map<boolean, PreviewMetadata>>();
+
+function metadataFor(csv: CsvDocument, hasHeader: boolean): PreviewMetadata {
+  let byHeader = previewMetadata.get(csv);
+  if (!byHeader) {
+    byHeader = new Map();
+    previewMetadata.set(csv, byHeader);
+  }
+  const cached = byHeader.get(hasHeader);
+  if (cached) { return cached; }
   const records = csv.text.length === 0 ? [] : csv.records;
   const headers = hasHeader && records.length
     ? records[0].fields.map((field) => getFieldValue(csv, field)) : [];
   let columnCount = headers.length;
   for (const record of records) { columnCount = Math.max(columnCount, record.fields.length); }
-  const generatedHeaders = Array.from({ length: columnCount }, (_, index) => !headers[index]);
-  const displayedHeaders = Array.from({ length: columnCount }, (_, index) => headers[index] || '');
+  const baseline = hasHeader ? records[0] : records.find((record) => record.end > record.start);
+  const data = {
+    records, headers: Array.from({ length: columnCount }, (_, index) => headers[index] || ''),
+    generatedHeaders: Array.from({ length: columnCount }, (_, index) => !headers[index]),
+    baselineColumnCount: baseline?.fields.length,
+    issues: validateCsv(csv, hasHeader)
+  };
+  byHeader.set(hasHeader, data);
+  return data;
+}
+
+export function previewPage(csv: CsvDocument, hasHeader: boolean, requestedPage: number): PreviewPage {
+  const { records, headers, generatedHeaders, baselineColumnCount, issues } = metadataFor(csv, hasHeader);
   const pageCount = Math.max(1, Math.ceil(records.length / PREVIEW_PAGE_SIZE));
   const page = Math.max(0, Math.min(pageCount - 1, requestedPage));
-  const issues = validateCsv(csv, hasHeader);
-  const baseline = hasHeader ? records[0] : records.find((record) => record.end > record.start);
   const rows = records.slice(page * PREVIEW_PAGE_SIZE, (page + 1) * PREVIEW_PAGE_SIZE)
     .map((record, localIndex): PreviewRow => {
       const number = page * PREVIEW_PAGE_SIZE + localIndex + 1;
-      const recordIssues: CsvIssue['code'][] = baseline && record.fields.length !== baseline.fields.length
+      const recordIssues: CsvIssue['code'][] = baselineColumnCount !== undefined && record.fields.length !== baselineColumnCount
         ? ['columnCount'] : [];
-      const cells = displayedHeaders.map((_, index): PreviewCell => {
+      const cells = headers.map((_, index): PreviewCell => {
         const field = record.fields[index];
         if (!field) { return { value: '', missing: true, malformed: false, problems: [] }; }
         const problems = issues.filter((issue) => issue.severity === 'error' &&
@@ -52,7 +78,7 @@ export function previewPage(csv: CsvDocument, hasHeader: boolean, requestedPage:
       });
       return { number, cells, problems: recordIssues };
     });
-  return { hasHeader, page, pageCount, rowCount: records.length, headers: displayedHeaders,
+  return { hasHeader, page, pageCount, rowCount: records.length, headers,
     generatedHeaders, rows };
 }
 
