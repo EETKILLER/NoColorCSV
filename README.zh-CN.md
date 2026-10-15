@@ -31,9 +31,9 @@ NoColorCSV 是面向色觉障碍人士及其他不便依赖颜色区分列的用
 
 ## 安装
 
-从 [最新版本](https://github.com/EETKILLER/NoColorCSV/releases/latest)下载 `.vsix` 文件。在 VS Code 的**扩展**视图中打开 `…` 菜单，选择**从 VSIX 安装...**，然后选择下载的文件。
+从 [v1.0.1 发布页](https://github.com/EETKILLER/NoColorCSV/releases/tag/v1.0.1)下载 `nocolorcsv-1.0.1.vsix`。在 VS Code 的**扩展**视图中打开 `…` 菜单，选择**从 VSIX 安装...**，然后选择下载的文件。
 
-1.0.0 已在 Windows 的 VS Code 1.142 中完成界面功能检查；尚未完成屏幕阅读器朗读及 macOS/Linux 界面实测，详见[发布说明](docs/release-1.0.0.md)。扩展只读取以半角逗号分隔的 `.csv` 文件，不编辑原文件。
+v1.0.0 已在 Windows 的 VS Code 1.142 中完成界面功能检查；v1.0.1 仅更新文档。尚未完成屏幕阅读器朗读及 macOS/Linux 界面实测，详见[发布说明](docs/release-1.0.1.md)。扩展只读取以半角逗号分隔的 `.csv` 文件，不编辑原文件。
 
 ## 使用
 
@@ -55,7 +55,7 @@ NoColorCSV 是面向色觉障碍人士及其他不便依赖颜色区分列的用
 
 `nocolorcsv.columnSymbols` 默认关闭。开启后，当前单元格边缘和状态栏会同时显示从 1 开始的列号与循环符号。八个符号循环使用：第 1 列和第 9 列符号相同，但列号不同。同列其他单元格仍使用简短标记。若字体无法显示符号，请以状态栏或“显示当前列信息”命令中的文字列号为准。
 
-`nocolorcsv.accessibilityPreset` 可选 `standard`（沿用 v0.2 外观）、`highContrast`（更明显的焦点边框、符号和文字提示）、`screenReader`（默认关闭焦点标记与符号，保留行号、列号、表头和值的文字信息）。预设只改变本扩展。显式设置的 `columnFocus`、`statusBar` 或 `columnSymbols` 优先于预设默认值。要恢复预设默认值，请从用户或工作区设置中删除对应单项设置。
+`nocolorcsv.accessibilityPreset` 可选 `standard`（默认焦点样式）、`highContrast`（更明显的焦点边框、符号和文字提示）、`screenReader`（默认关闭焦点标记与符号，保留行号、列号、表头和值的文字信息）。预设只改变本扩展。显式设置的 `columnFocus`、`statusBar` 或 `columnSymbols` 优先于预设默认值。要恢复预设默认值，请从用户或工作区设置中删除对应单项设置。
 
 解析支持双引号字段、字段内的逗号与换行、转义双引号和 UTF-8 BOM。分隔符为半角逗号 `,`；全角逗号 `，` 会被视为普通文本。
 
@@ -67,7 +67,7 @@ NoColorCSV 是面向色觉障碍人士及其他不便依赖颜色区分列的用
 
 大文件在扩展宿主中解析，预览每次只渲染 50 行；极大文件首次打开可能较慢。单元格中的外部链接和 HTML 只作为字面文本显示。
 
-手动验证：按 F5 启动扩展开发宿主，打开 `examples/sample.csv` 并运行预览命令。用键盘移动，修改单元格但暂不保存，再切换 `nocolorcsv.hasHeader`，检查行号、表头和未保存提示。另试空字段、短行、引号内换行、高对比度主题与 200% 缩放。关闭预览后确认预览操作未改变原文件及 dirty 状态。
+手动验证：按 F5 启动扩展开发宿主，打开 `examples/sample.csv` 并运行预览命令，用键盘移动。在原文编辑器中修改 `hello, world`，暂不保存：预览单元格应同步更新并显示未保存提示，磁盘文件不变。另做一项独立检查：关闭 `nocolorcsv.hasHeader`，预览列标题应从 `name`、`city`、`note` 变为编号列，首条记录仍是逻辑第 1 行。再试空字段、短行、引号内换行、高对比度主题与 200% 缩放。预览操作不应保存或编辑原文。
 
 ### CSV 校验
 
@@ -86,7 +86,9 @@ npm test
 
 在 VS Code 中打开仓库，按 **F5** 启动扩展开发宿主。调试配置会先编译 TypeScript。打开 `examples/sample.csv`，把光标移过引号内逗号并跨行移动，检查焦点标记和状态栏逻辑行号。依次切换 `nocolorcsv.columnFocus` 的 `column`、`cell`、`off`，关闭 `nocolorcsv.statusBar` 后运行“显示当前列信息”。再检查空字段、引号内换行、滚动和切换到非 CSV 文件，并在高缩放及高对比度主题下查看。操作不应更改或保存 CSV 文件。
 
-验证 v0.3 时，可新建一行至少 20 列的临时 CSV，比较第 1、9、17 列：符号会重复，列号不能混淆。在设置中切换符号和三个预设，并试试在 `highContrast` 下显式关闭 `columnSymbols`。检查窄编辑器、自动换行、200% 缩放、浅色/深色/高对比度主题，以及屏幕阅读器朗读状态栏和“显示当前列信息”。在可用的 Windows、macOS、Linux 上检查键盘导航。关闭 CSV 或切到非 CSV 标签后，标记应清除。前后比较文件内容；扩展不应编辑文件。
+手动检查 Windows 上的 v1.0 时，可新建至少 20 列的临时 CSV，比较第 1、9、17 列：符号会重复，列号仍能区分它们。在设置中切换符号和三个预设，并试试在 `highContrast` 下显式关闭 `columnSymbols`。检查键盘导航、窄编辑器、自动换行、200% 缩放及浅色/深色/高对比度主题。关闭 CSV 或切到非 CSV 标签后，标记应清除。前后比较文件内容；扩展不应编辑文件。v1.0.1 尚未完成屏幕阅读器朗读实测。
+
+运行 `npm run perf:smoke` 可检查 1 MB 文件，运行 `npm run perf` 可重复测量 1 MB 和 10 MB 文件。Windows 宿主的测量数据及局限见 [v1.0 性能报告](docs/performance-v1-candidate.md)。
 
 生成可安装的 VSIX：
 

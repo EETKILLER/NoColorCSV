@@ -31,9 +31,9 @@ NoColorCSV does not change CSV content or add color to columns.
 
 ## Install
 
-Download the `.vsix` file from the [latest release](https://github.com/EETKILLER/NoColorCSV/releases/latest). In VS Code, open the **Extensions** view, select `…` → **Install from VSIX...**, and choose the downloaded file.
+Download `nocolorcsv-1.0.1.vsix` from the [v1.0.1 release](https://github.com/EETKILLER/NoColorCSV/releases/tag/v1.0.1). In VS Code, open the **Extensions** view, select `…` → **Install from VSIX...**, and choose the downloaded file.
 
-Version 1.0.0 was functionally checked in VS Code 1.142 on Windows. Screen reader speech and the macOS/Linux interface have not been verified; see the [release notes](docs/release-1.0.0.md). The extension reads comma separated `.csv` files and does not edit them.
+The Windows UI was functionally checked for v1.0.0 in VS Code 1.142; v1.0.1 updates documentation only. Screen reader speech and the macOS/Linux interface have not been verified; see the [release notes](docs/release-1.0.1.md). The extension reads comma separated `.csv` files and does not edit them.
 
 ## Use
 
@@ -55,7 +55,7 @@ The `nocolorcsv.hasHeader` setting treats the first CSV record as headers by def
 
 `nocolorcsv.columnSymbols` is off by default. When enabled, the current cell edge and status bar show its one-based column number with a repeating symbol. Eight symbols repeat: columns 1 and 9 share a shape but keep distinct numbers. The same-column marks stay compact. If a font cannot show a symbol, use the text column number in the status bar or **Show Current Column**.
 
-`nocolorcsv.accessibilityPreset` offers `standard` (v0.2 appearance), `highContrast` (stronger focus borders, symbols, and a text focus hint), and `screenReader` (no focus marks or symbols by default; row, column, header, and value remain in text). It changes only this extension. Explicit `columnFocus`, `statusBar`, or `columnSymbols` settings override the preset defaults. To restore a preset default, remove that individual setting from your user or workspace settings.
+`nocolorcsv.accessibilityPreset` offers `standard` (the default focus style), `highContrast` (stronger focus borders, symbols, and a text focus hint), and `screenReader` (no focus marks or symbols by default; row, column, header, and value remain in text). It changes only this extension. Explicit `columnFocus`, `statusBar`, or `columnSymbols` settings override the preset defaults. To restore a preset default, remove that individual setting from your user or workspace settings.
 
 Parsing supports quoted fields, commas and line breaks inside quotes, escaped double quotes, and UTF-8 BOM. The delimiter is the ASCII comma `,`; a full width comma `，` is treated as text.
 
@@ -67,7 +67,7 @@ Tab into the table, use arrow keys to move between cells, Home/End for the first
 
 Large files are parsed in the extension host, while the preview renders only 50 rows at a time. The first load can take longer for very large CSV files. External links and HTML in cells are displayed as literal text.
 
-To check the preview in the Extension Development Host, open `examples/sample.csv`, run the preview command, and move with the keyboard. Edit a cell without saving, toggle `nocolorcsv.hasHeader`, then check the updated row, header, and unsaved notice. Try an empty field, a short row, quoted newline, high contrast theme and 200% zoom. Close the preview and confirm the source file and dirty state did not change because of preview actions.
+To check the preview in the Extension Development Host, open `examples/sample.csv`, run the preview command, and move with the keyboard. In the source editor, change `hello, world` without saving: the preview cell should update and show an unsaved-changes notice; the file on disk should stay unchanged. Separately, turn off `nocolorcsv.hasHeader`: the preview headings should change from `name`, `city`, `note` to numbered columns, while the first record remains logical row 1. Try an empty field, a short row, quoted newline, high contrast theme, and 200% zoom. Preview actions should not save or edit the source.
 
 ### CSV validation
 
@@ -86,7 +86,9 @@ npm test
 
 Open the repository in VS Code and press **F5** to launch the Extension Development Host. The debug configuration compiles TypeScript first. Open `examples/sample.csv`, move the cursor through a quoted comma and across rows, and check the marks and logical row in the status bar. Change `nocolorcsv.columnFocus` among `column`, `cell`, and `off`; turn `nocolorcsv.statusBar` off and use **Show Current Column**. Also try an empty cell, a multiline quoted cell, scrolling, and switching to a non-CSV file. Check at high zoom and in a high contrast theme. These actions should not change or save the CSV file.
 
-For v0.3 validation, create a temporary CSV row with at least 20 columns and compare columns 1, 9, and 17; each should retain its number while the symbol repeats. Toggle symbols and all three presets in Settings, including an explicit `columnSymbols: false` with `highContrast`. Check a narrow editor, word wrap, 200% zoom, light/dark/high contrast themes, and screen reader reading of the status and **Show Current Column**. Check keyboard navigation on Windows, macOS, and Linux where available. Closing the CSV or switching to a non-CSV tab should clear marks. Compare the file before and after; the extension does not edit it.
+For a Windows manual check of v1.0, create a temporary CSV with at least 20 columns. Compare columns 1, 9, and 17: the symbol repeats, but the column number distinguishes them. Toggle symbols and all three presets, including an explicit `columnSymbols: false` with `highContrast`. Check keyboard navigation, a narrow editor, word wrap, 200% zoom, and light/dark/high contrast themes. Closing the CSV or switching to a non-CSV tab should clear marks. Compare the file before and after; the extension should not edit it. Screen reader speech remains unverified for v1.0.1.
+
+Run `npm run perf:smoke` for the 1 MB performance check or `npm run perf` for repeatable 1 MB and 10 MB benchmarks. See the [v1.0 performance report](docs/performance-v1-candidate.md) for the Windows host measurements and limits.
 
 Build an installable VSIX with:
 

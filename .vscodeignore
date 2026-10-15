@@ -1,6 +1,7 @@
 .vscode/**
 .vscode-test/**
 .tmp-preview-test/**
+.local-archive/**
 .github/**
 .gitignore
 AGENTS.md
