@@ -6,7 +6,7 @@ NoColorCSV is a VS Code extension for people with color vision differences and a
 
 ## See it in VS Code
 
-These screenshots show NoColorCSV running with [the included sample file](examples/sample.csv).
+These screenshots show the v0.1.3 status layout with [the included sample file](examples/sample.csv). The current status bar also shows the logical row; updated screenshots are pending.
 
 **Current column:** With the cursor in `hello, world`, the status bar identifies column 3 and its `note` header.
 
@@ -35,7 +35,7 @@ Download the `.vsix` file from the [latest release](https://github.com/EETKILLER
 
 ## Use
 
-Open a `.csv` file and move the cursor. The status bar shows the current column number, the number of columns in that row, and the header when available. Select the status bar item to see the current cell's text details, or run a command from the Command Palette.
+Open a `.csv` file and move the cursor. The status bar shows the logical row, current column, number of columns in that row, and the header when available. It also labels empty cells and unavailable headers. The current non-empty cell has a solid underline and edge mark; visible non-empty cells in the same column have dashed underlines and a different edge mark. Empty cells show only the edge mark. Select the status bar item to see the current cell's text details, or run a command from the Command Palette.
 
 | Command | Windows / Linux | macOS |
 | --- | --- | --- |
@@ -49,6 +49,8 @@ Search for `NoColorCSV` in VS Code's **Keyboard Shortcuts** to change a shortcut
 
 The `nocolorcsv.hasHeader` setting treats the first CSV record as headers by default. Turn it off for files without a header row. Row numbers always start with the first record.
 
+`nocolorcsv.columnFocus` defaults to `column`; set it to `cell` to mark only the current cell or `off` to remove all marks. `nocolorcsv.statusBar` defaults to `true`; turn it off to hide the status item. The **Show Current Column** command and keyboard navigation still work with either display setting off. An empty file has one cursor location; a final line ending does not add a logical row.
+
 Parsing supports quoted fields, commas and line breaks inside quotes, escaped double quotes, and UTF-8 BOM. The delimiter is the ASCII comma `,`; a full width comma `，` is treated as text.
 
 ## Develop
@@ -60,7 +62,7 @@ npm ci
 npm test
 ```
 
-Open the repository in VS Code and press **F5** to launch the Extension Development Host. The debug configuration compiles TypeScript first. Use `examples/sample.csv` to check column detection and navigation.
+Open the repository in VS Code and press **F5** to launch the Extension Development Host. The debug configuration compiles TypeScript first. Open `examples/sample.csv`, move the cursor through a quoted comma and across rows, and check the marks and logical row in the status bar. Change `nocolorcsv.columnFocus` among `column`, `cell`, and `off`; turn `nocolorcsv.statusBar` off and use **Show Current Column**. Also try an empty cell, a multiline quoted cell, scrolling, and switching to a non-CSV file. Check at high zoom and in a high contrast theme. These actions should not change or save the CSV file.
 
 Build an installable VSIX with:
 

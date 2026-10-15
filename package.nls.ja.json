@@ -5,5 +5,7 @@
   "command.previousColumn": "前の列に移動",
   "command.nextRow": "同じ列の次の行に移動",
   "command.previousRow": "同じ列の前の行に移動",
-  "configuration.hasHeader": "最初の CSV レコードを列の見出しとして使用します。"
+  "configuration.hasHeader": "最初の CSV レコードを列の見出しとして使用します。",
+  "configuration.columnFocus": "現在のセルまたは列を目に見える印で示します。off では印を表示しません。",
+  "configuration.statusBar": "現在の CSV 論理行、列、見出しをステータスバーに表示します。"
 }

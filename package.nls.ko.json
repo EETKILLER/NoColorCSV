@@ -5,5 +5,7 @@
   "command.previousColumn": "이전 열로 이동",
   "command.nextRow": "같은 열의 다음 행으로 이동",
   "command.previousRow": "같은 열의 이전 행으로 이동",
-  "configuration.hasHeader": "첫 번째 CSV 레코드를 열 헤더로 사용합니다."
+  "configuration.hasHeader": "첫 번째 CSV 레코드를 열 헤더로 사용합니다.",
+  "configuration.columnFocus": "현재 셀 또는 열을 눈에 보이는 표시로 강조합니다. off는 표시를 끕니다.",
+  "configuration.statusBar": "현재 CSV 논리 행, 열, 헤더를 상태 표시줄에 표시합니다."
 }

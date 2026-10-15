@@ -5,5 +5,7 @@
   "command.previousColumn": "转到上一列",
   "command.nextRow": "转到本列下一行",
   "command.previousRow": "转到本列上一行",
-  "configuration.hasHeader": "将 CSV 第一条记录用作列标题。"
+  "configuration.hasHeader": "将 CSV 第一条记录用作列标题。",
+  "configuration.columnFocus": "用可见标记聚焦当前单元格或整列；关闭后不显示标记。",
+  "configuration.statusBar": "在状态栏显示当前 CSV 逻辑行、列和表头。"
 }

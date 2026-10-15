@@ -5,6 +5,7 @@
 AGENTS.md
 src/**
 examples/**
+docs/development/**
 node_modules/**
 tsconfig.json
 out/test/**

@@ -80,8 +80,12 @@ export function parseCsv(text: string): CsvDocument {
     atFieldStart = false;
   }
 
-  fields.push({ start: fieldStart, end: text.length });
-  records.push({ start: recordStart, end: text.length, fields });
+  // An empty file still has one place for the cursor. A trailing record
+  // separator, however, does not create another logical CSV record.
+  if (recordStart < text.length || records.length === 0) {
+    fields.push({ start: fieldStart, end: text.length });
+    records.push({ start: recordStart, end: text.length, fields });
+  }
   return { text, records };
 }
 

@@ -6,7 +6,7 @@ NoColorCSV es una extensión de VS Code para personas con dificultades de percep
 
 ## Así se ve en VS Code
 
-Estas capturas muestran la extensión en funcionamiento con el [archivo de ejemplo](examples/sample.csv) incluido.
+Estas capturas muestran la barra de estado de v0.1.3 con el [archivo de ejemplo](examples/sample.csv). La barra actual también muestra la fila lógica; las capturas nuevas están pendientes.
 
 **Columna actual:** Al situar el cursor en `hello, world`, la barra de estado indica la columna 3 y su encabezado `note`.
 
@@ -35,7 +35,7 @@ Descarga el archivo `.vsix` de la [versión más reciente](https://github.com/EE
 
 ## Uso
 
-Abre un archivo `.csv` y mueve el cursor. La barra de estado muestra el número de la columna actual, el total de columnas de esa fila y el encabezado, si existe. Selecciona el elemento de la barra de estado para ver los detalles de la celda. Los comandos también están disponibles en la paleta de comandos.
+Abre un archivo `.csv` y mueve el cursor. La barra de estado muestra la fila lógica, la columna actual, el total de columnas de esa fila y el encabezado disponible. También indica las celdas vacías y los encabezados ausentes. La celda actual no vacía lleva un subrayado continuo y una marca lateral; las celdas visibles no vacías de la misma columna llevan un subrayado discontinuo y otra marca. Las celdas vacías solo muestran la marca lateral. Selecciona el elemento de la barra de estado para ver los detalles en texto, o usa la paleta de comandos.
 
 | Comando | Windows / Linux | macOS |
 | --- | --- | --- |
@@ -49,6 +49,8 @@ Puedes cambiar los atajos buscando `NoColorCSV` en **Métodos abreviados de tecl
 
 La opción `nocolorcsv.hasHeader` utiliza el primer registro del CSV como encabezados de forma predeterminada. Desactívala para archivos sin encabezados. La numeración de filas siempre comienza en el primer registro.
 
+`nocolorcsv.columnFocus` usa `column` de forma predeterminada. Con `cell` solo marca la celda actual y con `off` elimina las marcas. `nocolorcsv.statusBar` usa `true` de forma predeterminada; desactívala para ocultar el elemento de la barra. El comando **Mostrar columna actual** y la navegación por teclado siguen funcionando con cualquiera de las dos opciones de visualización desactivada. Un archivo vacío conserva una posición para el cursor; un salto de línea final no añade una fila lógica.
+
 El analizador admite campos entre comillas, comas y saltos de línea dentro de esos campos, comillas dobles escapadas y BOM UTF-8. El separador es la coma ASCII `,`; la coma de ancho completo `，` se trata como texto.
 
 ## Desarrollo
@@ -60,7 +62,7 @@ npm ci
 npm test
 ```
 
-Abre el repositorio en VS Code y pulsa **F5** para iniciar el entorno de desarrollo de extensiones. La configuración compila TypeScript antes de iniciar. Usa `examples/sample.csv` para comprobar la detección de columnas y la navegación.
+Abre el repositorio en VS Code y pulsa **F5** para iniciar el entorno de desarrollo de extensiones. La configuración compila TypeScript antes de iniciar. Abre `examples/sample.csv`, mueve el cursor por una coma entre comillas y entre filas, y comprueba las marcas y la fila lógica. Cambia `nocolorcsv.columnFocus` entre `column`, `cell` y `off`; desactiva `nocolorcsv.statusBar` y ejecuta **Mostrar columna actual**. Comprueba también una celda vacía, un campo entre comillas con varias líneas, el desplazamiento y el cambio a un archivo que no sea CSV. Prueba un zoom alto y un tema de alto contraste. Estas acciones no deben modificar ni guardar el CSV.
 
 Para crear un VSIX instalable:
 

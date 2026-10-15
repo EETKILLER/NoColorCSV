@@ -5,5 +5,7 @@
   "command.previousColumn": "Go to Previous Column",
   "command.nextRow": "Go to Next Row in Current Column",
   "command.previousRow": "Go to Previous Row in Current Column",
-  "configuration.hasHeader": "Use the first CSV record as column headers."
+  "configuration.hasHeader": "Use the first CSV record as column headers.",
+  "configuration.columnFocus": "Focus the current cell or its column with visible marks. Off removes the marks.",
+  "configuration.statusBar": "Show the current logical CSV row, column, and header in the status bar."
 }
