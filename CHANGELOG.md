@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 (2026-10-15)
+
+- Clarify read-only preview checks and the separate header-setting check in all five READMEs.
+- Refresh Windows v1.0 development instructions and link to the performance report.
+- Keep extension behavior unchanged from 1.0.0; screen reader speech remains unverified.
+
 ## 1.0.0 (2026-10-15)
 
 - Add deterministic 1 MB and 10 MB synthetic CSV fixtures, a repeatable Node benchmark,
