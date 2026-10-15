@@ -147,7 +147,10 @@
   "scripts": {
     "compile": "tsc -p ./",
     "test": "npm run compile && node --test out/test/column.test.js out/test/extension.test.js out/test/presentation.test.js out/test/preview.test.js",
-    "package": "npm run compile && vsce package --no-dependencies"
+    "package": "npm run compile && vsce package --no-dependencies",
+    "perf": "npm run compile && node --expose-gc scripts/performance.cjs",
+    "perf:fixtures": "npm run compile && node scripts/performance.cjs --generate",
+    "perf:smoke": "npm run compile && node scripts/performance.cjs --smoke"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
