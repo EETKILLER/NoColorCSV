@@ -1,5 +1,6 @@
 .vscode/**
 .vscode-test/**
+.tmp-preview-test/**
 .github/**
 .gitignore
 AGENTS.md

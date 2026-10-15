@@ -57,6 +57,16 @@ The `nocolorcsv.hasHeader` setting treats the first CSV record as headers by def
 
 Parsing supports quoted fields, commas and line breaks inside quotes, escaped double quotes, and UTF-8 BOM. The delimiter is the ASCII comma `,`; a full width comma `，` is treated as text.
 
+### Read-only table preview
+
+With a `.csv` text editor active, run **NoColorCSV: Open Read-only Table Preview** from the Command Palette. A separate tab shows the current editor content, including unsaved changes. Opening the command again for the same file reuses its tab. The preview never edits or saves the CSV. The first logical record remains row 1 even when `nocolorcsv.hasHeader` uses it as the column headers.
+
+Tab into the table, use arrow keys to move between cells, Home/End for the first/last column, and Page Up/Page Down for another page of 50 rows. Press Enter or **Go to this cell in source** to move the source cursor. Empty fields say **Empty**; short rows say **Missing this column**. Malformed fields and row width problems carry text notices, and **Show Problems** opens VS Code's Problems panel. Long values are visually shortened, but their full text remains available to the screen reader. Close the preview tab with Ctrl+W (Cmd+W on macOS) to return to the source. Closing or renaming the source shows an unavailable message.
+
+Large files are parsed in the extension host, while the preview renders only 50 rows at a time. The first load can take longer for very large CSV files. External links and HTML in cells are displayed as literal text.
+
+To check the preview in the Extension Development Host, open `examples/sample.csv`, run the preview command, and move with the keyboard. Edit a cell without saving, toggle `nocolorcsv.hasHeader`, then check the updated row, header, and unsaved notice. Try an empty field, a short row, quoted newline, high contrast theme and 200% zoom. Close the preview and confirm the source file and dirty state did not change because of preview actions.
+
 ### CSV validation
 
 `nocolorcsv.validation.enabled` is on by default. The **Problems** panel reports unclosed quotes, unexpected text after a closing quote, quotes inside unquoted fields, and rows with a different number of columns. The first row sets the expected count when headers are enabled; otherwise the first nonblank logical record does. A final line ending adds no record. Diagnostics are read-only, update after edits, and clear when you switch away from or close the CSV, or turn validation off. The first 200 problems are shown, followed by a notice if more exist.

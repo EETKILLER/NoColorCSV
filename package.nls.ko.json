@@ -10,5 +10,6 @@
   "configuration.statusBar": "현재 CSV 논리 행, 열, 헤더를 상태 표시줄에 표시합니다.",
   "configuration.columnSymbols": "현재 열 번호 옆에 기호를 표시합니다. 기호는 8열마다 반복됩니다.",
   "configuration.accessibilityPreset": "확장 표시 프리셋을 선택합니다. 명시적으로 설정한 포커스, 상태 표시줄, 기호 옵션이 우선합니다.",
-  "configuration.validationEnabled": "읽기 전용 CSV 구문 오류와 열 개수 경고를 문제 패널에 표시합니다."
+  "configuration.validationEnabled": "읽기 전용 CSV 구문 오류와 열 개수 경고를 문제 패널에 표시합니다.",
+  "command.openPreview": "읽기 전용 표 미리보기 열기"
 }

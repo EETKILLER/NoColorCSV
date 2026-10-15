@@ -57,6 +57,16 @@ La opción `nocolorcsv.hasHeader` utiliza el primer registro del CSV como encabe
 
 El analizador admite campos entre comillas, comas y saltos de línea dentro de esos campos, comillas dobles escapadas y BOM UTF-8. El separador es la coma ASCII `,`; la coma de ancho completo `，` se trata como texto.
 
+### Vista previa de tabla de solo lectura
+
+Con un editor de texto `.csv` activo, ejecuta **NoColorCSV: Abrir vista previa de tabla de solo lectura** desde la paleta de comandos. Una pestaña separada muestra el contenido actual, incluidos los cambios sin guardar. Volver a ejecutar el comando reutiliza la pestaña del mismo archivo. La vista previa no edita ni guarda el CSV. Aunque `nocolorcsv.hasHeader` use el primer registro como encabezado, sigue siendo la fila lógica 1.
+
+Pulsa Tab para entrar en la tabla. Usa las flechas para moverte entre celdas, Inicio/Fin para la primera/última columna y Re Pág/Av Pág para cambiar de página de 50 filas. Pulsa Intro o **Ir a esta celda en el origen** para mover el cursor del texto original. Un campo vacío muestra «Vacío» y una fila corta muestra «Falta esta columna». Los campos mal formados y los recuentos de columnas distintos muestran avisos de texto; **Mostrar Problemas** abre el panel de VS Code. Los valores largos se acortan visualmente, pero el lector de pantalla puede leerlos completos. Cierra la pestaña con Ctrl+W (Cmd+W en macOS) para volver al origen. Si se cierra o renombra el documento de origen, aparece un aviso de que la vista no está disponible.
+
+Los archivos grandes se analizan en el host de la extensión y la vista dibuja solo 50 filas a la vez. La primera apertura de un CSV muy grande puede tardar más. Los enlaces y el HTML de las celdas se muestran como texto literal.
+
+Para comprobarlo manualmente, pulsa F5, abre `examples/sample.csv` y usa el teclado en la vista previa. Cambia una celda sin guardar, alterna `nocolorcsv.hasHeader` y comprueba la fila, el encabezado y el aviso de cambios sin guardar. Prueba también un campo vacío, una fila corta, un salto de línea entre comillas, alto contraste y zoom del 200 %. Cierra la vista y comprueba que sus acciones no cambiaron el archivo ni su estado de modificación.
+
 ### Validación CSV
 
 `nocolorcsv.validation.enabled` está activado por defecto. **Problemas** muestra comillas sin cerrar, caracteres después de cerrar comillas, comillas dentro de campos sin comillas y filas con distinta cantidad de columnas. Con encabezados, la primera fila fija la cantidad esperada; sin ellos, se usa el primer registro lógico no vacío. Un salto de línea final no agrega un registro. Los diagnósticos son de solo lectura, se actualizan tras editar y desaparecen al cambiar o cerrar el CSV o desactivar la validación. Se muestran los primeros 200 problemas y un aviso de texto si hay más.

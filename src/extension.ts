@@ -8,6 +8,7 @@ import {
   AccessibilityPreset, columnSymbol, FocusMode, hasExplicitValue, PresentationSettings,
   resolvePresentationSettings, symbolCycleLength
 } from './presentation';
+import { PreviewPanels } from './previewPanel';
 
 const parsedDocuments = new CsvSnapshotCache<vscode.TextDocument>();
 
@@ -76,6 +77,7 @@ function issueMessage(issue: CsvIssue): string {
 }
 
 export function activate(context: vscode.ExtensionContext): void {
+  const previews = new PreviewPanels(context.extensionUri, parsedCsv);
   const diagnostics = vscode.languages.createDiagnosticCollection('NoColorCSV');
   const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
   statusBar.name = vscode.l10n.t('NoColorCSV current cell');
@@ -343,8 +345,9 @@ export function activate(context: vscode.ExtensionContext): void {
         }
       }
     },
-    statusBar, diagnostics, ...decorations,
+    statusBar, diagnostics, previews, ...decorations,
     showColumn,
+    vscode.commands.registerCommand('nocolorcsv.openPreview', () => previews.open(vscode.window.activeTextEditor)),
     vscode.commands.registerTextEditorCommand('nocolorcsv.nextColumn', move('column', 1)),
     vscode.commands.registerTextEditorCommand('nocolorcsv.previousColumn', move('column', -1)),
     vscode.commands.registerTextEditorCommand('nocolorcsv.nextRow', move('row', 1)),
@@ -365,12 +368,15 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     }),
     vscode.workspace.onDidChangeTextDocument((event) => {
+      previews.changed(event.document);
       if (event.document === vscode.window.activeTextEditor?.document) {
         scheduleUpdate(vscode.window.activeTextEditor);
         refreshDiagnostics(event.document);
       }
     }),
+    vscode.workspace.onDidSaveTextDocument((document) => previews.changed(document)),
     vscode.workspace.onDidCloseTextDocument((document) => {
+      previews.documentClosed(document);
       parsedDocuments.delete(document);
       diagnostics.delete(document.uri);
       if (diagnosticDocument === document) {
@@ -384,9 +390,13 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('nocolorcsv')) {
+        previews.configurationChanged();
         updateDisplay(vscode.window.activeTextEditor);
         refreshDiagnostics(vscode.window.activeTextEditor?.document);
       }
+    }),
+    vscode.workspace.onDidRenameFiles((event) => {
+      for (const file of event.files) { previews.renamed(file.oldUri); }
     })
   );
 

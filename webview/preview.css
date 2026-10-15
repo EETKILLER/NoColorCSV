@@ -1,0 +1,15 @@
+body { color: var(--vscode-foreground); background: var(--vscode-editor-background); font-family: var(--vscode-font-family); }
+h1 { font-size: 1.35em; }
+.notice, .problem { font-weight: 600; }
+.toolbar { display: flex; gap: .6em; align-items: center; flex-wrap: wrap; margin: 1em 0; }
+button { color: var(--vscode-button-foreground); background: var(--vscode-button-background); border: 1px solid var(--vscode-contrastBorder, transparent); padding: .35em .65em; }
+button:disabled { opacity: .55; }
+button:focus-visible, td:focus-visible { outline: 3px solid var(--vscode-focusBorder); outline-offset: -2px; }
+.scroll { max-height: 72vh; overflow: auto; }
+table { border-collapse: collapse; width: max-content; min-width: 100%; }
+th, td { border: 1px solid var(--vscode-panel-border, currentColor); padding: .35em .55em; text-align: left; vertical-align: top; max-width: 32rem; }
+thead th { position: sticky; top: 0; background: var(--vscode-editor-background); z-index: 1; }
+tbody th { position: sticky; left: 0; background: var(--vscode-editor-background); }
+.value { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.problem { display: block; white-space: normal; }
+.missing { font-style: italic; }
